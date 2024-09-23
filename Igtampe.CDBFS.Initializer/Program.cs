@@ -16,7 +16,7 @@ namespace Igtampe.CDBFS.Initializer {
                 return;
             };
 
-            var conString = "Host=nosy-manatee-1774.g8z.gcp-us-east1.cockroachlabs.cloud:26257;Database=cdbfs;Username=cdbfs;Password=hKSczPzOZQ6Gld12ZSjLAQ;";
+            var conString = new EnvironmentKey("DB_URL").ToString();
 
             adoTemplate = new AdoTemplate(conString?.Trim() ?? "");
 
