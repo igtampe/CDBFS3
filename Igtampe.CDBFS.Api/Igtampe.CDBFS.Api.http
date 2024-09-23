@@ -1,0 +1,6 @@
+@Igtampe.CDBFS.Api_HostAddress = http://localhost:5189
+
+GET {{Igtampe.CDBFS.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
