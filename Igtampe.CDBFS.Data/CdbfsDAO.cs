@@ -11,7 +11,7 @@ namespace Igtampe.CDBFS.Data {
 
         private static readonly Func<IDataReader, AccessRecord> accessRecordRm = (reader) => new AccessRecord() {
             Id = reader.GetInt32(reader.GetOrdinal(ACCESS_ID_COLUMN)),
-            Username = reader.GetString(reader.GetOrdinal(USER_COLUMN)),
+            Username = reader.IsDBNull(reader.GetOrdinal(USER_COLUMN)) ? null : reader.GetString(reader.GetOrdinal(USER_COLUMN)),
             DriveId = reader.GetInt32(reader.GetOrdinal(DRIVE_ID_COLUMN)),
             Access = (Access)reader.GetInt32(reader.GetOrdinal(ACCESS_LEVEL_COLUMN))
         };
@@ -31,11 +31,11 @@ namespace Igtampe.CDBFS.Data {
             var ent = new CdbfsFolder() {
                 Id = reader.GetInt32(reader.GetOrdinal(FOLDER_ID_COLUMN)),
                 DriveId = reader.GetInt32(reader.GetOrdinal(DRIVE_ID_COLUMN)),
-                ParentFolder = reader.GetInt32(reader.GetOrdinal(PARENT_FOLDER_ID_COLUMN)),
+                ParentFolder = reader.IsDBNull(reader.GetOrdinal(PARENT_FOLDER_ID_COLUMN)) ? null : reader.GetInt32(reader.GetOrdinal(PARENT_FOLDER_ID_COLUMN)),
                 Name = reader.GetString(reader.GetOrdinal(FOLDER_NAME_COLUMN)),
                 FileCount = reader.GetInt32(reader.GetOrdinal(FOLDER_FILE_COUNT_COLUMN)),
                 FolderCount = reader.GetInt32(reader.GetOrdinal(FOLDER_SUBFOLDER_COUNT_COLUMN)),
-                Size = reader.GetInt32(reader.GetOrdinal(FOLDER_SIZE_COLUMN))
+                Size = reader.IsDBNull(reader.GetOrdinal(FOLDER_SIZE_COLUMN)) ? 0: reader.GetInt32(reader.GetOrdinal(FOLDER_SIZE_COLUMN))
             };
             return EditableOperations(reader, ent);
         };
@@ -44,10 +44,10 @@ namespace Igtampe.CDBFS.Data {
             var ent = new CdbfsFile() {
                 Id = reader.GetInt32(reader.GetOrdinal(FILE_ID_COLUMN)),
                 Drive = reader.GetInt32(reader.GetOrdinal(DRIVE_ID_COLUMN)),
-                Folder = reader.GetInt32(reader.GetOrdinal(FOLDER_ID_COLUMN)),
+                Folder = reader.IsDBNull(reader.GetOrdinal(FOLDER_ID_COLUMN)) ? null : reader.GetInt32(reader.GetOrdinal(FOLDER_ID_COLUMN)),
                 Name = reader.GetString(reader.GetOrdinal(FILE_NAME_COLUMN)),
                 MimeType = reader.GetString(reader.GetOrdinal(FILE_TYPE_COLUMN)),
-                Size = reader.GetInt32(reader.GetOrdinal(FOLDER_SIZE_COLUMN))
+                Size = reader.GetInt32(reader.GetOrdinal(FILE_SIZE_COLUMN))
             };
             return EditableOperations(reader, ent);
         };
@@ -55,8 +55,8 @@ namespace Igtampe.CDBFS.Data {
         private static T EditableOperations<T>(IDataReader reader, T editable) where T : Editable {
             editable.CreateTs = reader.GetDateTime(reader.GetOrdinal(CRE_TS));
             editable.CreateUserId = reader.GetString(reader.GetOrdinal(CRE_USR_ID));
-            editable.UpdateTs = reader.GetDateTime(reader.GetOrdinal(UPDT_TS));
-            editable.UpdateUserId = reader.GetString(reader.GetOrdinal(UPDT_USR_ID));
+            editable.UpdateTs = reader.IsDBNull(reader.GetOrdinal(UPDT_TS)) ? null : reader.GetDateTime(reader.GetOrdinal(UPDT_TS));
+            editable.UpdateUserId = reader.IsDBNull(reader.GetOrdinal(UPDT_USR_ID)) ? null : reader.GetString(reader.GetOrdinal(UPDT_USR_ID));
             return editable;
         }
 
@@ -64,7 +64,8 @@ namespace Igtampe.CDBFS.Data {
 
         #region Lists
         public async Task<List<AccessRecord>> AccessRecords(string? username) {
-            var sql = $"SELECT * FROM {ACCESS_TABLE} WHERE {USER_COLUMN} = @username";
+            var userCondition = username == null ? "is null" : " = @username";
+            var sql = $"SELECT * FROM {ACCESS_TABLE} WHERE {USER_COLUMN} {userCondition}";
             return await adoTemplate.Query(sql,
                 (setParam) => setParam("username", NpgsqlDbType.Varchar, username),
                 accessRecordRm);
@@ -91,7 +92,7 @@ from {DRIVE_VIEW}
 where {DRIVE_ID_COLUMN} in (
     select {DRIVE_ID_COLUMN} 
     from {ACCESS_TABLE} 
-    WHERE {USER_COLUMN} = @username OR {USER_COLUMN} = null
+    WHERE {USER_COLUMN} = @username OR {USER_COLUMN} is null
 );"; //As long as the user has an access record, they can see the files.
 
             return await adoTemplate.Query(sql, (setParam) => setParam("username", NpgsqlDbType.Varchar, username), driveRm);
@@ -101,17 +102,19 @@ where {DRIVE_ID_COLUMN} in (
         public async Task<List<CdbfsFolder>> Folders(string? username, int drive, int? folder) {
             await VerifyFolderInDrive(drive, folder);
 
+            var folderCondition = folder == null ? "is null" : "= @folder";
+
             //We can do this all from one SQL
             var sql = $@"
 select * 
 from {FOLDER_VIEW} 
 where 
 {DRIVE_ID_COLUMN} = @drive AND --This is the drive we're looking for
-{PARENT_FOLDER_ID_COLUMN} = @folder AND -- The folder
+{PARENT_FOLDER_ID_COLUMN} {folderCondition} AND -- The folder
 {DRIVE_ID_COLUMN} in ( --We have access to this drive
     select {DRIVE_ID_COLUMN} 
     from {ACCESS_TABLE} 
-    WHERE {USER_COLUMN} = @username  OR {USER_COLUMN} = null
+    WHERE {USER_COLUMN} = @username  OR {USER_COLUMN} is null
 )
 
 ";
@@ -128,15 +131,16 @@ where
 
         public async Task<List<CdbfsFile>> Files(string? username, int drive, int? folder) {
             await VerifyFolderInDrive(drive, folder);
+            var folderCondition = folder == null ? "is null" : "= @folder";
             var sql = $@"
 select * 
 from {FILE_VIEW} 
-where {DRIVE_ID_COLUMN} = @drive AND --This is the drive we're looking for
-{FOLDER_ID_COLUMN} = @folder AND -- The folder
-{DRIVE_ID_COLUMN} in ( --We have access to this drive
+where {DRIVE_ID_COLUMN} = @drive AND 
+{FOLDER_ID_COLUMN} {folderCondition} AND 
+{DRIVE_ID_COLUMN} in ( 
     select {DRIVE_ID_COLUMN} 
     from {ACCESS_TABLE} 
-    WHERE {USER_COLUMN} = @username  OR {USER_COLUMN} = null
+    WHERE {USER_COLUMN} = @username  OR {USER_COLUMN} is null
 )";
 
             return await adoTemplate.Query(sql, (setParam) => {
@@ -159,11 +163,11 @@ where
 {DRIVE_ID_COLUMN} in (
     select {DRIVE_ID_COLUMN} 
     from {ACCESS_TABLE} 
-    WHERE {USER_COLUMN} = @username OR {USER_COLUMN} = null
+    WHERE {USER_COLUMN} = @username OR {USER_COLUMN} is null
 );"; //As long as the user has an access record, they can see the files.
 
             return await adoTemplate.QuerySingle(sql, (setParam) => {
-                setParam("id", NpgsqlDbType.Integer, drive);
+                setParam("drive", NpgsqlDbType.Integer, drive);
                 setParam("username", NpgsqlDbType.Varchar, username);
             }, driveRm);
 
@@ -172,7 +176,7 @@ where
         public async Task<CdbfsDirectory> Dir(string? username, int driveId, int? folderId) {
 
             var drive = await GetDrive(username, driveId);
-            if (drive != null) { throw new CdbfsFileNotFoundException(); }
+            if (drive == null) { throw new CdbfsFileNotFoundException(); }
 
             await VerifyFolderInDrive(driveId, folderId);
             var folder = folderId ==null ? null : await GetFolder(folderId ?? 0);
@@ -193,7 +197,7 @@ where {FILE_ID_COLUMN} = @file AND --This is the drive we're looking for
 {DRIVE_ID_COLUMN} in ( --We have access to this drive
     select {DRIVE_ID_COLUMN} 
     from {ACCESS_TABLE} 
-    WHERE {USER_COLUMN} = @username  OR {USER_COLUMN} = null
+    WHERE {USER_COLUMN} = @username  OR {USER_COLUMN} is null
 )";
 
             return await adoTemplate.QuerySingle(sql, (setParam) => {
@@ -211,8 +215,8 @@ where {FILE_ID_COLUMN} = @file AND --This is the drive we're looking for
 {DRIVE_ID_COLUMN} in ( --We have access to this drive
     select {DRIVE_ID_COLUMN} 
     from {ACCESS_TABLE} 
-    WHERE {USER_COLUMN} = @username  OR {USER_COLUMN} = null
-";
+    WHERE {USER_COLUMN} = @username  OR {USER_COLUMN} is null
+);";
 
             return await adoTemplate.QuerySingle(sql, (setParam) => {
                 setParam("file", NpgsqlDbType.Integer, file);
@@ -235,13 +239,14 @@ where {FILE_ID_COLUMN} = @file AND --This is the drive we're looking for
             await VerifyCanEditDrive(username, drive);
 
             var sql = $@"
-INSERT INTO ${FILE_TABLE} ({DRIVE_ID_COLUMN},{PARENT_FOLDER_ID_COLUMN},{CRE_TS}, {CRE_USR_ID})
-values (@drive,@folder,CURRENT_TIMESTAMP,@user) returning {FOLDER_ID_COLUMN}";
+INSERT INTO {FOLDER_TABLE} ({DRIVE_ID_COLUMN},{PARENT_FOLDER_ID_COLUMN},{FOLDER_NAME_COLUMN},{CRE_TS}, {CRE_USR_ID})
+values (@drive,@folder,@name,CURRENT_TIMESTAMP,@user) returning {FOLDER_ID_COLUMN}";
 
             return await adoTemplate.QuerySingle(sql, (setParam) => {
                 setParam("drive", NpgsqlDbType.Integer, drive);
                 setParam("folder", NpgsqlDbType.Integer, parent_folder);
-                setParam("user", NpgsqlDbType.Integer, username);
+                setParam("user", NpgsqlDbType.Varchar, username);
+                setParam("name", NpgsqlDbType.Varchar, name);
 
             }, (reader) => reader.GetInt32(reader.GetOrdinal(FOLDER_ID_COLUMN)));
 
@@ -376,7 +381,7 @@ RETURNING {DRIVE_ID_COLUMN}
             var id = await adoTemplate.QuerySingle(createDriveSql, (setParam) => {
                 setParam("driveName", NpgsqlDbType.Varchar, name);
                 setParam("user", NpgsqlDbType.Varchar, username);
-            }, (reader)=>reader.GetInt32(1));
+            }, (reader)=>reader.GetInt32(0));
 
             //Manually add an access record
             await InternalAddAccessRecord(new AccessRecord() { 
@@ -461,7 +466,7 @@ VALUES (@id,@username,@access)
                 setParam("access", NpgsqlDbType.Integer, (int)accessRecord.Access);
                 setParam("username", NpgsqlDbType.Varchar, accessRecord.Username);
                 setParam("id", NpgsqlDbType.Integer, accessRecord.DriveId);
-            }, (reader) => reader.GetInt32(1));
+            }, (reader) => reader.GetInt32(0));
         }
 
         public async Task UpdateAccessRecord(string username, int id, Access access) {
@@ -518,7 +523,7 @@ WHERE {USER_COLUMN} = @username AND
             if (!await adoTemplate.QuerySingle(sql, (setParam) => {
                 setParam("username", NpgsqlDbType.Varchar, username);
                 setParam("drive", NpgsqlDbType.Integer, drive);
-            }, (reader) => reader.GetInt32(1) > 0)) {
+            }, (reader) => reader.GetInt32(0) > 0)) {
                 throw new CdbfsNotAuthorizedException();
             }
         }
@@ -536,7 +541,7 @@ WHERE {USER_COLUMN} = @username AND
             if (!await adoTemplate.QuerySingle(sql, (setParam) => {
                 setParam("username", NpgsqlDbType.Varchar, username);
                 setParam("drive", NpgsqlDbType.Integer, drive);
-            }, (reader) => reader.GetInt32(1) > 0)) {
+            }, (reader) => reader.GetInt32(0) > 0)) {
                 throw new CdbfsNotAuthorizedException();
             }
         }
@@ -558,7 +563,7 @@ WHERE {FOLDER_ID_COLUMN} = @folder AND
             if (!await adoTemplate.QuerySingle(sql, (setParam) => {
                 setParam("username", NpgsqlDbType.Varchar, username);
                 setParam("folder", NpgsqlDbType.Integer, folder);
-            }, (reader) => reader.GetInt32(1) > 0)) {
+            }, (reader) => reader.GetInt32(0) > 0)) {
                 throw new CdbfsNotAuthorizedException();
             }
 
@@ -581,7 +586,7 @@ WHERE {FILE_ID_COLUMN} = @file AND
             if (!await adoTemplate.QuerySingle(sql, (setParam) => {
                 setParam("username", NpgsqlDbType.Varchar, username);
                 setParam("file", NpgsqlDbType.Integer, file);
-            }, (reader) => reader.GetInt32(1) > 0)) {
+            }, (reader) => reader.GetInt32(0) > 0)) {
                 throw new CdbfsNotAuthorizedException();
             }
 
@@ -612,7 +617,7 @@ RETURNING {FILE_ID_COLUMN}
                 setParam("fileData", NpgsqlDbType.Bytea, data);
                 setParam("fileType", NpgsqlDbType.Varchar, mimeType);
                 setParam("username", NpgsqlDbType.Varchar, username);
-            }, (reader)=>reader.GetInt32(1));
+            }, (reader)=>reader.GetInt32(0));
 
         }
 

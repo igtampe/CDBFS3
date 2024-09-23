@@ -3,7 +3,7 @@
         public DateTime CreateTs { get; set; } = DateTime.Now;
         public string CreateUserId { get; set; } = "";
         public DateTime? UpdateTs { get; set; } = null;
-        public string UpdateUserId { get; set; } = "";
+        public string? UpdateUserId { get; set; } = "";
 
     }
 }

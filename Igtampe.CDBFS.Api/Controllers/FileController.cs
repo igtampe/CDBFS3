@@ -41,11 +41,12 @@ namespace Igtampe.CDBFS.Api.Controllers {
             if (file == null || file.Length == 0) { return BadRequest("No data!"); }
             if (request == null) { return BadRequest("No Metadata!!"); }
 
+
             using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
             var fileBytes = memoryStream.ToArray(); // Convert to byte array
 
-            await dao.CreateFile(session.Username, request.Drive, request.Folder, request.Name, fileBytes, request.Type);
+            await dao.CreateFile(session.Username, request.Drive, request.Folder, file.Name, fileBytes, file.ContentType);
             return Created();
 
         }
@@ -70,12 +71,12 @@ namespace Igtampe.CDBFS.Api.Controllers {
             await file.CopyToAsync(memoryStream);
             var fileBytes = memoryStream.ToArray(); // Convert to byte array
 
-            await dao.UpdateFile(session.Username,request.Id,fileBytes,request.Type);
+            await dao.UpdateFile(session.Username,request.Id,fileBytes,file.ContentType);
             return Ok();
         }
 
-        [HttpPut]
-        public async Task<IActionResult> RenameFile([FromBody] FileRequest request) {
+        [HttpPut("rename")]
+        public async Task<IActionResult> RenameFile([FromBody] FileRenameRequest request) {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 

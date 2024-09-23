@@ -30,14 +30,14 @@ namespace Igtampe.CDBFS.Data {
                     setParam("username", NpgsqlDbType.Varchar, username);
                     setParam("password", NpgsqlDbType.Varchar, hashbrown.Hash(password));
                 },
-                (reader) => reader.GetInt32(1) > 0);
+                (reader) => reader.GetInt32(0) > 0);
         
         }
 
-        public async Task Register(string username, string password, string registerKey) {
+        public async Task Register(string username, string password, string key) {
 
-            var admin = registerKey.Equals(adminKey.ToString());
-            if (!admin && !registerKey.Equals(registerKey.ToString())) {
+            var admin = key.Equals(adminKey.ToString());
+            if (!admin && !key.Equals(registerKey.ToString())) {
                 throw new ArgumentException("Key is incorrect");
             }
 

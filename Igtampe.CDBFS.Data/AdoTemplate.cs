@@ -1,9 +1,13 @@
 ﻿using Npgsql;
 using NpgsqlTypes;
 using System.Data;
+using Igtampe.BasicLogger;
 
 namespace Igtampe.CDBFS.Data {
+
     public class AdoTemplate(string connectionString) {
+
+        private readonly BasicLogger.BasicLogger log = new(LogSeverity.DEBUG);
 
         private readonly string ConnectionString = connectionString;
         private static readonly string TEST_QUERY = "SELECT 1";
@@ -26,6 +30,7 @@ namespace Igtampe.CDBFS.Data {
 
             setter(setParam);
 
+            log.Debug(sql);
             using var reader = await cmd.ExecuteReaderAsync();
             while (await reader.ReadAsync()) { results.Add(rowMapper(reader));}
 
@@ -38,7 +43,8 @@ namespace Igtampe.CDBFS.Data {
         public async Task<int> Execute(string sql, Action<Action<string, NpgsqlDbType, object?>> setter) {
             using var conn = new NpgsqlConnection(ConnectionString);
             await conn.OpenAsync();
-            
+
+
             using var cmd = new NpgsqlCommand(sql, conn);
 
             void setParam(string key, NpgsqlDbType type, object? val) {
@@ -46,6 +52,8 @@ namespace Igtampe.CDBFS.Data {
             }
 
             setter(setParam);
+
+            log.Debug(sql);
 
             return await cmd.ExecuteNonQueryAsync();
         }

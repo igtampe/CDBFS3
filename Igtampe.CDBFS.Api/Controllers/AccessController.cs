@@ -19,9 +19,7 @@ namespace Igtampe.CDBFS.Api.Controllers {
         [HttpGet]
         public async Task<IActionResult> MyAccess() {
             var session = GetSession(Request, Response);
-            return session == null 
-                ? Unauthorized() 
-                : Ok(await dao.AccessRecords(session.Username));
+            return Ok(await dao.AccessRecords(session?.Username));
         }
 
         [HttpGet("{driveId}")]

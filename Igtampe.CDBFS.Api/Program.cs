@@ -33,7 +33,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options => options.SwaggerEndpoint($"/swagger/1/swagger.json", "Chopo Database File System (CDBFS)"));
     app.UseDeveloperExceptionPage();
 
 }
@@ -45,8 +45,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseMiddleware<F>();
 
 app.Run();
 

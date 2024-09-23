@@ -17,13 +17,13 @@ namespace Igtampe.CDBFS.Api.Controllers {
             dao = new(new EnvironmentKey("DB_URL", () => throw new InvalidOperationException("")).ToString());
         }
 
-        [HttpGet(Name = "me")]
+        [HttpGet("me")]
         public async Task<IActionResult> Me() {
             var session = GetSession(Request,Response);
             return session == null ? Unauthorized() : Ok(await dao.GetUser(session.Username));
         }
 
-        [HttpPost(Name = "login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req) {
             if (!await dao.Authenticate(req.Username, req.Password)) {
                 return Unauthorized();
@@ -34,14 +34,14 @@ namespace Igtampe.CDBFS.Api.Controllers {
             return Ok();
         }
 
-        [HttpGet(Name = "logout")]
+        [HttpGet("logout")]
         
         public IActionResult Logout() {
             RemoveSession(Response);
             return Ok();
         }
 
-        [HttpPost(Name = "register")]
+        [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request) {
             try { await dao.Register(request.Username, request.Password, request.RegistrationKey); }
             catch (ArgumentException) { Unauthorized(); }
@@ -49,7 +49,7 @@ namespace Igtampe.CDBFS.Api.Controllers {
             
         }
 
-        [HttpPut(Name = "password")]
+        [HttpPut("password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassRequest request) {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
