@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /Igtampe.CDBFS.Api/ADMIN_KEY.txt
 /Igtampe.CDBFS.Api/HASHBROWN_SALT.txt
 /Igtampe.CDBFS.Api/REGISTER_KEY.txt
+/Igtampe.CDBFS.Api/DB_URL.txt
