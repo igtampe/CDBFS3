@@ -66,14 +66,14 @@ namespace Igtampe.CDBFS.Data {
         #region Lists
         public async Task<List<AccessRecord>> AccessRecords(string? username) {
             var userCondition = username == null ? "is null" : " = @username";
-            var sql = $"SELECT * FROM {ACCESS_TABLE} WHERE {USER_COLUMN} {userCondition}";
+            var sql = $"SELECT * FROM {ACCESS_VIEW} WHERE {USER_COLUMN} {userCondition}";
             return await adoTemplate.Query(sql,
                 (setParam) => setParam("username", NpgsqlDbType.Varchar, username),
                 accessRecordRm);
         }
 
         public async Task<List<AccessRecord>> AccessRecords(string? username, int drive) {
-            var sql = $"SELECT * FROM {ACCESS_TABLE} WHERE {USER_COLUMN} = @username AND {DRIVE_ID_COLUMN} = @driveId";
+            var sql = $"SELECT * FROM {ACCESS_VIEW} WHERE {USER_COLUMN} = @username AND {DRIVE_ID_COLUMN} = @driveId";
             return await adoTemplate.Query(sql,
                 (setParam) => {
                     setParam("username", NpgsqlDbType.Varchar, username);

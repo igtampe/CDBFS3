@@ -7,7 +7,7 @@ namespace Igtampe.CDBFS.Data {
 
     public class AdoTemplate(string connectionString) {
 
-        private readonly BasicLogger.BasicLogger log = new(LogSeverity.DEBUG);
+        private static readonly BasicLogger.BasicLogger log = new(LogSeverity.DEBUG);
 
         private readonly string ConnectionString = connectionString;
         private static readonly string TEST_QUERY = "SELECT 1";
