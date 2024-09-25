@@ -1,4 +1,5 @@
 ﻿using Igtampe.CDBFS.Api.Requests;
+using Igtampe.CDBFS.Common.Exceptions;
 using Igtampe.CDBFS.Data;
 using Microsoft.AspNetCore.Mvc;
 using static Igtampe.CDBFS.Api.Controllers.AuthController;
@@ -27,7 +28,11 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.Format(session.Username, request.Id);
+            try { await dao.Format(session.Username, request.Id); }
+            catch (CdbfsNotAuthorizedException){
+                return Forbid(); 
+            }
+
 
             return Ok();
         }
@@ -47,7 +52,10 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.RenameDrive(session.Username,request.Id, request.Name);
+            try { await dao.RenameDrive(session.Username, request.Id, request.Name); }
+            catch (CdbfsNotAuthorizedException) {
+                return Forbid();
+            }
 
             return Ok();
         }
@@ -57,7 +65,10 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.DeleteDrive(session.Username, request.Id);
+            try { await dao.DeleteDrive(session.Username, request.Id); }
+            catch (CdbfsNotAuthorizedException) {
+                return Forbid();
+            }
 
             return Ok();
         }

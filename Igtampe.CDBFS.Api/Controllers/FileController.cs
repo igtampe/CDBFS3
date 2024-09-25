@@ -20,17 +20,22 @@ namespace Igtampe.CDBFS.Api.Controllers {
         [HttpGet("{id}/data")]
         public async Task<IActionResult> DownloadFileData(int id) {
             var session = GetSession(Request, Response);
-            CdbfsFile file = await dao.GetFile(session?.Username, id) ?? throw new CdbfsFileNotFoundException();
-            byte[] data = await dao.GetFileData(session?.Username, id) ?? throw new CdbfsFileNotFoundException(); ;
+            try {
+                CdbfsFile file = await dao.GetFile(session?.Username, id) ?? throw new CdbfsFileNotFoundException();
+                byte[] data = await dao.GetFileData(session?.Username, id) ?? throw new CdbfsFileNotFoundException(); ;
 
-            return File(data, file.MimeType, AppendExtension(file));
+                return File(data, file.MimeType, AppendExtension(file));
+            }
+            catch (CdbfsFileNotFoundException) {
+                return NotFound();
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFile(int id) {
             var session = GetSession(Request, Response);
-            CdbfsFile file = await dao.GetFile(session?.Username, id) ?? throw new CdbfsFileNotFoundException();
-            return Ok(file);
+            CdbfsFile? file = await dao.GetFile(session?.Username, id);
+            return file==null ? NotFound() : Ok(file);
         }
 
         [HttpPost]
@@ -46,7 +51,15 @@ namespace Igtampe.CDBFS.Api.Controllers {
             await file.CopyToAsync(memoryStream);
             var fileBytes = memoryStream.ToArray(); // Convert to byte array
 
-            await dao.CreateFile(session.Username, request.Drive, request.Folder, file.Name, fileBytes, file.ContentType);
+            try { await dao.CreateFile(session.Username, request.Drive, request.Folder, file.Name, fileBytes, file.ContentType); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+            catch (CdbfsFolderNotInDriveException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "Folder is not present in given drive"
+                });
+            }
+
             return Created();
 
         }
@@ -55,7 +68,17 @@ namespace Igtampe.CDBFS.Api.Controllers {
         public async Task<IActionResult> CopyFile([FromBody] FileRequest request) {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
-            await dao.CopyFile(session.Username, request.Id, request.Drive, request.Folder);
+
+            try { await dao.CopyFile(session.Username, request.Id, request.Drive, request.Folder); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+            catch (CdbfsFileNotFoundException) { return NotFound(); }
+            catch (CdbfsFolderNotInDriveException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "Folder is not present in given drive"
+                });
+            }
+
             return Created();
         }
 
@@ -71,7 +94,9 @@ namespace Igtampe.CDBFS.Api.Controllers {
             await file.CopyToAsync(memoryStream);
             var fileBytes = memoryStream.ToArray(); // Convert to byte array
 
-            await dao.UpdateFile(session.Username,request.Id,fileBytes,file.ContentType);
+            try { await dao.UpdateFile(session.Username, request.Id, fileBytes, file.ContentType); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+
             return Ok();
         }
 
@@ -80,7 +105,9 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.RenameFile(session.Username,request.Id,request.Name);
+            try { await dao.RenameFile(session.Username, request.Id, request.Name); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+
             return Ok();
 
         }
@@ -89,7 +116,16 @@ namespace Igtampe.CDBFS.Api.Controllers {
         public async Task<IActionResult> MoveFile([FromBody] FileRequest request) {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
-            await dao.MoveFile(session.Username, request.Id, request.Drive, request.Folder);
+
+            try { await dao.MoveFile(session.Username, request.Id, request.Drive, request.Folder); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+            catch (CdbfsFolderNotInDriveException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "Folder is not present in given drive"
+                });
+            }
+
             return Ok();
         }
 
@@ -98,7 +134,9 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.DeleteFile(session.Username, request.Id);
+            try { await dao.DeleteFile(session.Username, request.Id); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+
             return Ok();
         }
 

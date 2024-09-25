@@ -26,7 +26,10 @@ namespace Igtampe.CDBFS.Api.Controllers {
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req) {
             if (!await dao.Authenticate(req.Username, req.Password)) {
-                return Unauthorized();
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "Incorrect username or password"
+                });
             };
 
             AddSession(Response, SessionManager.Manager.LogIn(req.Username));
@@ -44,7 +47,10 @@ namespace Igtampe.CDBFS.Api.Controllers {
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request) {
             try { await dao.Register(request.Username, request.Password, request.RegistrationKey); }
-            catch (ArgumentException) { Unauthorized(); }
+            catch (ArgumentException e) { BadRequest(new ProblemDetails() { 
+                Status=400,
+                Detail = e.Message
+            }); }
             return Ok();
             
         }
@@ -53,7 +59,14 @@ namespace Igtampe.CDBFS.Api.Controllers {
         public async Task<IActionResult> ChangePassword([FromBody] ChangePassRequest request) {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
-            await dao.UpdatePassword(session.Username, request.OldPassword, request.NewPassword);
+            try { await dao.UpdatePassword(session.Username, request.OldPassword, request.NewPassword); }
+            catch (ArgumentException e) {
+                BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = e.Message
+                });
+            }
+
             return Ok();
         }
 

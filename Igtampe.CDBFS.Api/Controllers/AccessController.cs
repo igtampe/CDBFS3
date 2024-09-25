@@ -1,4 +1,5 @@
 ﻿using Igtampe.CDBFS.Common;
+using Igtampe.CDBFS.Common.Exceptions;
 using Igtampe.CDBFS.Data;
 using Microsoft.AspNetCore.Mvc;
 using static Igtampe.CDBFS.Api.Controllers.AuthController;
@@ -35,8 +36,11 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.AddAccessRecord(session.Username, record);
-            return Created();
+            try {
+                await dao.AddAccessRecord(session.Username, record);
+                return Created();
+            }
+            catch (CdbfsNotAuthorizedException) { return Forbid();}
         }
 
         [HttpPut]
@@ -44,8 +48,28 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.UpdateAccessRecord(session.Username, record.Id, record.Access); ;
-            return Ok();
+            try {
+                await dao.UpdateAccessRecord(session.Username, record.Id, record.Access); ;
+                return Ok();
+            }
+            catch (CdbfsFileNotFoundException) {
+                return NotFound();
+            }
+            catch (CdbfsNotAuthorizedException) {
+                return Forbid();
+            }
+            catch (SelfAccessEditException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "You cannot edit your own roles"
+                });
+            }
+            catch (NoOwnersException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "This edit will orphan this drive and has been cancelled"
+                });
+            }
         }
 
         [HttpDelete]
@@ -53,10 +77,22 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.DeleteAccessRecord(session.Username, record.Id);
-            return Ok();
+            try {
+                await dao.DeleteAccessRecord(session.Username, record.Id);
+                return Ok();
+            }
+            catch (CdbfsFileNotFoundException) {
+                return NotFound();
+            }
+            catch (CdbfsNotAuthorizedException) {
+                return Forbid();
+            }
+            catch (NoOwnersException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "This edit will orphan this drive and has been cancelled"
+                });
+            }
         }
-
-
     }
 }

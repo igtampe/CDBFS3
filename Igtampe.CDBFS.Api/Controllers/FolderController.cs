@@ -1,4 +1,5 @@
 ﻿using Igtampe.CDBFS.Api.Requests;
+using Igtampe.CDBFS.Common.Exceptions;
 using Igtampe.CDBFS.Data;
 using Microsoft.AspNetCore.Mvc;
 using static Igtampe.CDBFS.Api.Controllers.AuthController;
@@ -17,13 +18,25 @@ namespace Igtampe.CDBFS.Api.Controllers {
         [HttpGet("dir/{drive}")]
         public async Task<IActionResult> Dir(int drive) {
             var session = GetSession(Request, Response);
-            return Ok(await dao.Dir(session?.Username, drive, null));
+            try { return Ok(await dao.Dir(session?.Username, drive, null)); }
+            catch (CdbfsFileNotFoundException) { return NotFound(); }
+            catch (CdbfsFolderNotInDriveException) { return BadRequest(new ProblemDetails() { 
+                Status=400,
+                Detail="Folder is not present in given drive"
+            }); }
         }
 
         [HttpGet("dir/{drive}/{folder}")]
         public async Task<IActionResult> Dir(int drive, int folder) {
             var session = GetSession(Request, Response);
-            return Ok(await dao.Dir(session?.Username, drive, folder));
+            try { return Ok(await dao.Dir(session?.Username, drive, folder)); }
+            catch (CdbfsFileNotFoundException) { return NotFound(); }
+            catch (CdbfsFolderNotInDriveException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "Folder is not present in given drive"
+                });
+            }
         }
 
         [HttpPost]
@@ -31,7 +44,15 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.CreateFolder(session.Username, request.Drive, request.ParentFolder, request.Name);
+            try { await dao.CreateFolder(session.Username, request.Drive, request.ParentFolder, request.Name); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+            catch (CdbfsFileNotFoundException) { return NotFound(); }
+            catch (CdbfsFolderNotInDriveException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "Folder is not present in given drive"
+                });
+            }
 
             return Created();
         }
@@ -41,7 +62,15 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.CopyFolder(session.Username, request.Id, request.Drive, request.ParentFolder);
+            try { await dao.CopyFolder(session.Username, request.Id, request.Drive, request.ParentFolder); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+            catch (CdbfsFileNotFoundException) { return NotFound(); }
+            catch (CdbfsFolderNotInDriveException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "Folder is not present in given drive"
+                });
+            }
 
             return Created();
         }
@@ -51,7 +80,8 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.RenameFolder(session.Username, request.Id, request.Name);
+            try { await dao.RenameFolder(session.Username, request.Id, request.Name); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
 
             return Ok();
 
@@ -63,7 +93,14 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.MoveFolder(session.Username, request.Id, request.Drive, request.ParentFolder);
+            try { await dao.MoveFolder(session.Username, request.Id, request.Drive, request.ParentFolder); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
+            catch (CdbfsFolderNotInDriveException) {
+                return BadRequest(new ProblemDetails() {
+                    Status = 400,
+                    Detail = "Folder is not present in given drive"
+                });
+            }
 
             return Ok();
         }
@@ -73,7 +110,8 @@ namespace Igtampe.CDBFS.Api.Controllers {
             var session = GetSession(Request, Response);
             if (session == null) { return Unauthorized(); }
 
-            await dao.DeleteFolder(session.Username, request.Id);
+            try { await dao.DeleteFolder(session.Username, request.Id); }
+            catch (CdbfsNotAuthorizedException) { return Forbid(); }
 
             return Ok();
         }
