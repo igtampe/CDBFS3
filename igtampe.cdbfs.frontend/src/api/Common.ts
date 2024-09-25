@@ -1,4 +1,4 @@
-export const API_PREFIX = window.location.href.toLowerCase().includes("localhost") ? "localhost:6095/api/" : "cdbfs.igtampe.com/api/"
+export const API_PREFIX = window.location.href.toLowerCase().includes("localhost") ? "https://localhost:7256/api/" : "https://cdbfs.igtampe.com/api/"
 
 class ApiResponse{
     constructor(
