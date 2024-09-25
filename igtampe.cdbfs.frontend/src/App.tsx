@@ -4,8 +4,10 @@ export default function App() {
 
   return (
     <>
-    <Navbar/>
-    Wiwiwi
+      <Navbar />
+      <div style={{ marginTop: "80px" }}>
+        Wiwiwi
+      </div>
     </>
   )
 }

@@ -38,7 +38,7 @@ namespace Igtampe.CDBFS.Data {
 
             var admin = key.Equals(adminKey.ToString());
             if (!admin && !key.Equals(registerKey.ToString())) {
-                throw new ArgumentException("Key is incorrect");
+                throw new ArgumentException("Registration key is incorrect");
             }
 
             var sql = $"INSERT INTO {USER_TABLE} ({string.Join(",", [USER_COLUMN,PASSWORD_COLUMN,ADMIN_COLUMN])}) VALUES (@username, @password, @admin)";

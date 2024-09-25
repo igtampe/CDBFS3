@@ -47,7 +47,7 @@ namespace Igtampe.CDBFS.Api.Controllers {
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request) {
             try { await dao.Register(request.Username, request.Password, request.RegistrationKey); }
-            catch (ArgumentException e) { BadRequest(new ProblemDetails() { 
+            catch (ArgumentException e) { return BadRequest(new ProblemDetails() { 
                 Status=400,
                 Detail = e.Message
             }); }
@@ -61,7 +61,7 @@ namespace Igtampe.CDBFS.Api.Controllers {
             if (session == null) { return Unauthorized(); }
             try { await dao.UpdatePassword(session.Username, request.OldPassword, request.NewPassword); }
             catch (ArgumentException e) {
-                BadRequest(new ProblemDetails() {
+                return BadRequest(new ProblemDetails() {
                     Status = 400,
                     Detail = e.Message
                 });
@@ -92,8 +92,12 @@ namespace Igtampe.CDBFS.Api.Controllers {
             });
         }
 
-        private static void RemoveSession(HttpResponse response) { 
-            response.Cookies.Delete(SESSION_COOKIE);
+        private static void RemoveSession(HttpResponse response) {
+            response.Cookies.Delete(SESSION_COOKIE, new() { 
+                Secure=true,
+                HttpOnly=true,
+                SameSite=SameSiteMode.None
+            });
         }
     }
 }
