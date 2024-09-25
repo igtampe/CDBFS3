@@ -23,7 +23,15 @@ builder.Services.AddCors(o => {
     builder => {
         builder.AllowAnyHeader();
         builder.AllowAnyMethod();
-        builder.AllowAnyOrigin();
+        
+        builder.SetIsOriginAllowed(origin => 
+            !string.IsNullOrEmpty(origin) && (
+                origin.Contains("localhost") || 
+                new Uri(origin).Host.EndsWith("igtampe.com")
+            )
+        );
+        
+        builder.AllowCredentials();
     });
 });
 
