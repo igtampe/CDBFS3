@@ -3,31 +3,56 @@
 namespace Igtampe.CDBFS.Api.Utils {
     public class MimeTypeToExtensionMapper {
         private static readonly Dictionary<string, string> MimeTypeMap = new(StringComparer.InvariantCultureIgnoreCase){
-            { "application/pdf", ".pdf" },
-            { "application/msword", ".doc" },
-            { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx" },
-            { "application/vnd.ms-excel", ".xls" },
-            { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx" },
-            { "application/zip", ".zip" },
-            { "application/json", ".json" },
-            { "application/xml", ".xml" },
-            { "application/vnd.ms-powerpoint", ".ppt" },  // PowerPoint PPT
-            { "application/vnd.openxmlformats-officedocument.presentationml.presentation", ".pptx" },  // PowerPoint PPTX
-            { "image/jpeg", ".jpg" },
-            { "image/png", ".png" },
-            { "image/gif", ".gif" },
-            { "image/bmp", ".bmp" },
-            { "image/webp", ".webp" },
-            { "text/plain", ".txt" },
-            { "text/html", ".html" },
-            { "text/csv", ".csv" },
-            { "video/mp4", ".mp4" },  // MP4 video
-            { "video/x-msvideo", ".avi" },  // AVI video
-            { "video/x-matroska", ".mkv" },  // MKV video
-            { "video/webm", ".webm" },  // WebM video
-            { "audio/mpeg", ".mp3" },
-            { "audio/wav", ".wav" },
-            { "application/x-msdownload", ".exe" }
+
+            //Applications - UnknownFile
+            { "application/pdf", ".pdf" }, //PDF
+            
+            { "application/msword", ".doc" }, //Word
+            { "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx" }, //Word
+            
+            { "application/vnd.ms-excel", ".xls" }, //Excel
+            { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx" }, //Excel
+            
+            { "application/json", ".json" }, //JSON
+            { "application/xml", ".xml" }, //XML
+
+            { "application/x-mspublisher", ".pub"}, //Publisher
+            
+            { "application/onenote",".one"}, //OneNote
+
+            { "application/vnd.ms-powerpoint", ".ppt" }, //Powerpoint
+            { "application/vnd.openxmlformats-officedocument.presentationml.presentation", ".pptx" }, //Powerpoint
+            
+            { "application/x-msdownload", ".exe" }, //EXE
+
+            { "application/zip", ".zip" },//zip
+            { "application/x-7z-compressed", ".7z"}, //7z
+            { "application/vnd.rar", ".rar"}, //7z
+            { "application/x-rar-compressed",".rar"},
+
+            //Image - UnknownImage
+            { "image/jpeg", ".jpg" }, //jpg
+            { "image/png", ".png" }, //png
+            { "image/gif", ".gif" }, //gif
+            { "image/bmp", ".bmp" }, //bmp
+            { "image/webp", ".webp" }, //webp
+            { "image/svg+xml", ".svg"}, //svg
+            { "image/svg", ".svg"}, //svg
+            
+            //Text - UnknownText
+            { "text/plain", ".txt" }, //Text
+            { "text/html", ".html" }, //HTML
+            { "text/csv", ".csv" }, //CSV
+            
+            //Video
+            { "video/mp4", ".mp4" }, //MP4
+            { "video/x-msvideo", ".avi" },  //Avi
+            { "video/x-matroska", ".mkv" }, //MKV 
+            { "video/webm", ".webm" },  //Webm
+
+            //Audio - UnknownAudio
+            { "audio/mpeg", ".mp3" }, //MP3
+            { "audio/wav", ".wav" } //WAV
         };
 
         public static string AppendExtension(CdbfsFile file) {
