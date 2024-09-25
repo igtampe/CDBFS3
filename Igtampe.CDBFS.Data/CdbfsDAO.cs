@@ -13,6 +13,7 @@ namespace Igtampe.CDBFS.Data {
             Id = reader.GetInt32(reader.GetOrdinal(ACCESS_ID_COLUMN)),
             Username = reader.IsDBNull(reader.GetOrdinal(USER_COLUMN)) ? null : reader.GetString(reader.GetOrdinal(USER_COLUMN)),
             DriveId = reader.GetInt32(reader.GetOrdinal(DRIVE_ID_COLUMN)),
+            Drive = driveRm(reader),
             Access = (Access)reader.GetInt32(reader.GetOrdinal(ACCESS_LEVEL_COLUMN))
         };
 

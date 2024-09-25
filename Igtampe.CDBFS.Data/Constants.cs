@@ -8,6 +8,7 @@
         public static readonly string PASSWORD_COLUMN = "pass_tx";
         public static readonly string ADMIN_COLUMN = "admin_in";
 
+        public static readonly string ACCESS_VIEW = $"{SCHEMA}.accessView";
         public static readonly string ACCESS_TABLE = $"{SCHEMA}.accessRecords";
         public static readonly string ACCESS_ID_COLUMN = "access_id";
         public static readonly string ACCESS_LEVEL_COLUMN = "access_level_nb";

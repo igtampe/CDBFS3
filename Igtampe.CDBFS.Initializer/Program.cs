@@ -108,6 +108,11 @@ from {DRIVE_TABLE} d;
 
 ";
 
+            var accessViewSql = $@"
+create view {ACCESS_VIEW} as
+select a.{ACCESS_ID_COLUMN}, a.{USER_COLUMN}, a.{ACCESS_LEVEL_COLUMN}, d.* from {DRIVE_VIEW} d, {ACCESS_TABLE} a where d.{DRIVE_ID_COLUMN} = a.{DRIVE_ID_COLUMN};
+";
+
             var sqls = new List<string>{ 
                 userTableSql, 
                 driveTableSql, 

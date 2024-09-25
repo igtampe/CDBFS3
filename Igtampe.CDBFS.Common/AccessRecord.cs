@@ -14,6 +14,8 @@
 
         public int DriveId { get; set; } = 0;
 
+        public CdbfsDrive? Drive { get; set; }
+
         /// <summary>Allows a user to Read all the files </summary>
         public Access Access { get; set; } = Access.READ;
 
