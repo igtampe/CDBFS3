@@ -23,8 +23,8 @@ namespace Igtampe.CDBFS.Data {
                 Name = reader.GetString(reader.GetOrdinal(DRIVE_NAME_COLUMN)),
                 FileCount = reader.GetInt32(reader.GetOrdinal(DRIVE_FILE_COUNT_COLUMN)),
                 FolderCount = reader.GetInt32(reader.GetOrdinal(DRIVE_FOLDER_COUNT_COLUMN)),
-                Size = reader.GetInt32(reader.GetOrdinal(DRIVE_SIZE_COLUMN))
-            };
+                Size = reader.IsDBNull(reader.GetOrdinal(DRIVE_SIZE_COLUMN)) ? null : reader.GetInt64(reader.GetOrdinal(DRIVE_SIZE_COLUMN))
+            };;
             return EditableOperations(reader, ent);
         };
 
@@ -36,7 +36,7 @@ namespace Igtampe.CDBFS.Data {
                 Name = reader.GetString(reader.GetOrdinal(FOLDER_NAME_COLUMN)),
                 FileCount = reader.GetInt32(reader.GetOrdinal(FOLDER_FILE_COUNT_COLUMN)),
                 FolderCount = reader.GetInt32(reader.GetOrdinal(FOLDER_SUBFOLDER_COUNT_COLUMN)),
-                Size = reader.IsDBNull(reader.GetOrdinal(FOLDER_SIZE_COLUMN)) ? 0: reader.GetInt32(reader.GetOrdinal(FOLDER_SIZE_COLUMN))
+                Size = reader.IsDBNull(reader.GetOrdinal(FOLDER_SIZE_COLUMN)) ? 0: reader.GetInt64(reader.GetOrdinal(FOLDER_SIZE_COLUMN))
             };
             return EditableOperations(reader, ent);
         };
@@ -48,7 +48,7 @@ namespace Igtampe.CDBFS.Data {
                 Folder = reader.IsDBNull(reader.GetOrdinal(FOLDER_ID_COLUMN)) ? null : reader.GetInt32(reader.GetOrdinal(FOLDER_ID_COLUMN)),
                 Name = reader.GetString(reader.GetOrdinal(FILE_NAME_COLUMN)),
                 MimeType = reader.GetString(reader.GetOrdinal(FILE_TYPE_COLUMN)),
-                Size = reader.GetInt32(reader.GetOrdinal(FILE_SIZE_COLUMN))
+                Size = reader.GetInt64(reader.GetOrdinal(FILE_SIZE_COLUMN))
             };
             return EditableOperations(reader, ent);
         };
@@ -73,10 +73,9 @@ namespace Igtampe.CDBFS.Data {
         }
 
         public async Task<List<AccessRecord>> AccessRecords(string? username, int drive) {
-            var sql = $"SELECT * FROM {ACCESS_VIEW} WHERE {USER_COLUMN} = @username AND {DRIVE_ID_COLUMN} = @driveId";
+            var sql = $"SELECT * FROM {ACCESS_VIEW} WHERE {DRIVE_ID_COLUMN} = @driveId";
             return await adoTemplate.Query(sql,
                 (setParam) => {
-                    setParam("username", NpgsqlDbType.Varchar, username);
                     setParam("driveId", NpgsqlDbType.Integer, drive);
                 },
                 accessRecordRm);
@@ -436,7 +435,7 @@ WHERE
 
         private async Task<AccessRecord?> GetAccessRecord(int recordId) {
             var sql = $@"
-SELECT * FROM {ACCESS_TABLE} WHERE {ACCESS_ID_COLUMN} = @id
+SELECT * FROM {ACCESS_VIEW} WHERE {ACCESS_ID_COLUMN} = @id
 ";
 
             return await adoTemplate.QuerySingle(sql, (setParam) => setParam("id", NpgsqlDbType.Integer, recordId), accessRecordRm);
@@ -478,7 +477,7 @@ VALUES (@id,@username,@access)
             if (record.Username == username) {
                 throw new SelfAccessEditException();
             }
-            await VerifyDriveOwner(username, id);
+            await VerifyDriveOwner(username, record.DriveId);
 
             //If this record is an owner, and we're trying to make them not an owner, and there's currently only one owner in this drive
             if (record.Access == Access.OWNER && access != Access.OWNER && await OwnerCount(record.DriveId) == 1) {

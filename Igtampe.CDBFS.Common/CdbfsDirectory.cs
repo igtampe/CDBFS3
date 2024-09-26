@@ -9,10 +9,10 @@
 
         public int FileCount => Files.Count;
         public int FolderCount => Subfolders.Count;
-        public int FileSize => Files.Sum(a => a.Size);
-        public int FoldersSize => Subfolders.Sum(a => a.Size);
-        public int FolderSize => Folder?.Size ?? 0;
-        public int DriveSize => Drive?.Size ?? 0;
+        public long FileSize => Files.Sum(a => a.Size);
+        public long FoldersSize => Subfolders.Sum(a => a.Size);
+        public long FolderSize => Folder?.Size ?? 0;
+        public long DriveSize => Drive?.Size ?? 0;
 
 
     }

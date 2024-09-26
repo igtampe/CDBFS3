@@ -7,7 +7,9 @@ var CORS = "CORS";
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(o => {
     o.SwaggerDoc("1", new OpenApiInfo {
         Version = "1",
@@ -35,6 +37,10 @@ builder.Services.AddCors(o => {
     });
 });
 
+
+builder.WebHost.ConfigureKestrel(serverOptions => {
+    serverOptions.Limits.MaxRequestBodySize = null; // Disable limit
+});
 
 var app = builder.Build();
 

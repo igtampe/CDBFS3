@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { DimensionsContext } from "../contexts/DimensionsContext";
+import { Dimensions, DimensionsContext } from "../contexts/DimensionsContext";
 
-export const useUser = () => {
-    const context = useContext(DimensionsContext);
-    if (!context) { throw new Error('AAAA!'); }
-    return context;
-  };
+export const useWindowDimensions = () => {
+  const context = useContext(DimensionsContext);
+  if (!context) { throw new Error('AAAA!'); }
+  return context as Dimensions;
+};

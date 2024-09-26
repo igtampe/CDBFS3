@@ -51,7 +51,7 @@ namespace Igtampe.CDBFS.Api.Controllers {
             await file.CopyToAsync(memoryStream);
             var fileBytes = memoryStream.ToArray(); // Convert to byte array
 
-            try { await dao.CreateFile(session.Username, request.Drive, request.Folder, file.Name, fileBytes, file.ContentType); }
+            try { await dao.CreateFile(session.Username, request.Drive, request.Folder < 0 ? null : request.Folder, file.FileName, fileBytes, file.ContentType); }
             catch (CdbfsNotAuthorizedException) { return Forbid(); }
             catch (CdbfsFolderNotInDriveException) {
                 return BadRequest(new ProblemDetails() {

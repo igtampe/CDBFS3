@@ -1,8 +1,8 @@
 import { useContext } from "react";
-import { ClipboardContext } from "../contexts/ClipboardContext";
+import { ClipboardContext, ClipboardContextType } from "../contexts/ClipboardContext";
 
 export const useClipboard = () => {
-    const context = useContext(ClipboardContext);
-    if (!context) { throw new Error('AAAA!'); }
-    return context;
-  };
+  const context = useContext(ClipboardContext);
+  if (!context) { throw new Error('AAAA!'); }
+  return context as ClipboardContextType;
+};

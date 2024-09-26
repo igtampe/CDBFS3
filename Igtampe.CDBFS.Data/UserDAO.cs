@@ -8,8 +8,8 @@ namespace Igtampe.CDBFS.Data {
         readonly Hashbrown.Hashbrown hashbrown = new();
         readonly AdoTemplate adoTemplate = new(connectionString);
 
-        readonly EnvironmentKey registerKey = new("REGISTER_KEY");
-        readonly EnvironmentKey adminKey = new("ADMIN_KEY");
+        readonly EnvironmentKey registerKey = new("REGISTER_KEY", ()=> "");
+        readonly EnvironmentKey adminKey = new("ADMIN_KEY", ()=>"");
 
         public async Task<User?> GetUser(string username) {
             var sql = $@"SELECT {USER_COLUMN},{ADMIN_COLUMN} FROM {USER_TABLE} WHERE {USER_COLUMN} = @username";
@@ -36,7 +36,11 @@ namespace Igtampe.CDBFS.Data {
 
         public async Task Register(string username, string password, string key) {
 
-            var admin = key.Equals(adminKey.ToString());
+            if (registerKey.ToString().Length == 0) {
+                throw new ArgumentException("No Registrations are accepted at this time");
+            }
+
+            var admin = key.Equals(adminKey.ToString()) && adminKey.ToString().Length!=0;
             if (!admin && !key.Equals(registerKey.ToString())) {
                 throw new ArgumentException("Registration key is incorrect");
             }

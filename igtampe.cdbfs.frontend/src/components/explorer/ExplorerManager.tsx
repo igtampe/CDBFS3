@@ -1,1 +1,0 @@
-//This component will hold a manager for explorers. It'll hold the explorers invisibly and let you switch between them

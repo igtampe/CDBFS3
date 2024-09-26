@@ -5,7 +5,7 @@
         public int Drive { get; set; } = 0;
         public int? Folder { get; set; } = 0;
         public string Name { get; set; } = "";
-        public int Size { get; set; } = 0;
+        public long Size { get; set; } = 0;
         public string MimeType { get; set; } = "";
     }
 }

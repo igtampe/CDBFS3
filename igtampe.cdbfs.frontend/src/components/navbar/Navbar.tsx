@@ -7,6 +7,7 @@ import ApiAlert from "../shared/ApiAlert";
 import RegisterRequest from "../../model/requests/auth/RegisterRequest";
 import LoginRequest from "../../model/requests/auth/LoginRequest";
 import ChangePassRequest from "../../model/requests/auth/ChangePassRequest";
+import { useTheme } from "@emotion/react";
 
 export default function Navbar() {
     return <AppBar color={"default"} enableColorOnDark>
@@ -27,6 +28,7 @@ export default function Navbar() {
 
 function UserButton() {
 
+    const theme = useTheme() as any;
     const { user, loading, refreshAuth } = useUser();
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [changePassModalOpen, setChangePassModalOpen] = useState(false)
@@ -41,8 +43,8 @@ function UserButton() {
         </div>
     </>
 
-    const handleProfileClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setProfileMenuEl(event.currentTarget);
+    const handleProfileClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+        setProfileMenuEl(e.currentTarget);
     };
 
     const handleLogout = () => {
@@ -68,7 +70,7 @@ function UserButton() {
                         size="small"
                         sx={{ ml: 2 }}
                     >
-                        <Avatar sx={{ width: 32, height: 32 }}>{user.username.charAt(0)}</Avatar>
+                        <Avatar variant="rounded" sx={{ width: 32, height: 32, bgcolor: theme.palette.primary.main }}>{user.username.charAt(0)}</Avatar>
                     </IconButton>
                 </Tooltip>
                 <Menu anchorEl={profileMenuEl} open={!!profileMenuEl} onClose={handleCloseProfileMenu}>
@@ -111,14 +113,12 @@ function AuthModal(props: {
 
     const handleClick = () => {
         if (registerMode) {
-            console.log("Registering")
             registerApi.fetch(onRegisterSuccess, undefined, {
                 username: username,
                 password: password,
                 registrationKey: regKey
             } as RegisterRequest)
         } else {
-            console.log("Logging in")
             loginApi.fetch(onLoginSuccess, undefined, {
                 username: username,
                 password: password
@@ -127,7 +127,6 @@ function AuthModal(props: {
     }
 
     const onRegisterSuccess = () => {
-        console.log("Registered!")
         loginApi.fetch(onLoginSuccess, undefined, {
             username: username,
             password: password
