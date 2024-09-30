@@ -92,10 +92,10 @@ export default function NewButton(props: {
                 <ListItemText>Create Folder</ListItemText>
             </MenuItem>
             <Divider />
-            <MenuItem onClick={handleFolderUploadClick} disabled={(record?.access ?? 0) === 0}>
+            {/* <MenuItem onClick={handleFolderUploadClick} disabled={(record?.access ?? 0) === 0}>
                 <ListItemIcon><DriveFolderUpload fontSize="small" /></ListItemIcon>
                 <ListItemText>Upload Folder</ListItemText>
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem onClick={handleFileUploadClick} disabled={(record?.access ?? 0) === 0}>
                 <ListItemIcon><UploadFile fontSize="small" /></ListItemIcon>
                 <ListItemText>Upload File</ListItemText>

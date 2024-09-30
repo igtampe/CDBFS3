@@ -32,9 +32,9 @@ export default function Tile(props: {
 
     return <Card style={{ width: "250px", margin: "5px" }} elevation={4}>
         <CardActionArea style={{ padding: "10px" }} onClick={handleClick} onDoubleClick={handleDoubleClick} onContextMenu={handleContextMenu}>
-            <div style={{ display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center" }}>
-                {imageUrl && <div style={{ marginRight: "20px" }}> <img src={imageUrl} height={32} /></div>}
-                <div style={{ flex: "1" }}><Typography noWrap>{text}</Typography></div>
+            <div style={{ display: "flex", justifyContent: "center", alignContent: "center", alignItems: "center", maxWidth: "230px" }}>
+                {imageUrl && <div style={{ marginRight: "20px", width: "32px" }}> <img src={imageUrl} height={32} /></div>}
+                <div style={{ width: "170px" }}><Typography noWrap>{text}</Typography></div>
             </div>
         </CardActionArea>
     </Card>

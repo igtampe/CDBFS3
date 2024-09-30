@@ -38,6 +38,8 @@ export default function App() {
 
   useEffect(() => {
     if (!accessRecord) reset()
+    setBreadCrumbs([])
+    setFile(undefined as any)
   }, [accessRecord])
 
   const navTo = (val: CdbfsFolder) => {
@@ -77,7 +79,11 @@ export default function App() {
           </div>
           {accessRecord?.drive && <div style={{ width: "300px", marginLeft: "20px" }}>
             <Card style={{ height: "100%" }}>
-              <DetailPane record={accessRecord} file={file} folder={folder} />
+              <DetailPane record={accessRecord} file={file} folder={folder} navUp={() => { navUp(1) }} setFile={setFile} setFolder={(val: CdbfsFolder) => {
+                breadcrumbs.pop();
+                breadcrumbs.push(val);
+                setBreadCrumbs([...breadcrumbs])
+              }} />
             </Card>
           </div>}
         </div>

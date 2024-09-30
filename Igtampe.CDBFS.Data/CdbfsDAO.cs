@@ -175,9 +175,7 @@ where
 
         public async Task<CdbfsDirectory> Dir(string? username, int driveId, int? folderId) {
 
-            var drive = await GetDrive(username, driveId);
-            if (drive == null) { throw new CdbfsFileNotFoundException(); }
-
+            var drive = await GetDrive(username, driveId) ?? throw new CdbfsFileNotFoundException();
             await VerifyFolderInDrive(driveId, folderId);
             var folder = folderId ==null ? null : await GetFolder(folderId ?? 0);
 
@@ -338,13 +336,11 @@ WHERE
                 subfolders.ForEach(async a => await DeleteFolder(username, a.Id));
             };
 
-            if (f.FileCount > 0) {
-                var files = await Files(username, f.DriveId, f.Id);  
-                files.ForEach(async a=> await DeleteFile(username, a.Id));
-            };
-
             //Finally the folder count is empty so we can delete ourselves
-            var sql = $@"DELETE FROM {FOLDER_TABLE} WHERE {FOLDER_ID_COLUMN} = @id";
+            var sql = $@"
+                DELETE FROM {FILE_TABLE} WHERE {FOLDER_ID_COLUMN} = @id;
+                DELETE FROM {FOLDER_TABLE} WHERE {FOLDER_ID_COLUMN} = @id;
+            ";
             await adoTemplate.Execute(sql, (setParam) => setParam("id", NpgsqlDbType.Integer, folder));
 
         }
@@ -365,7 +361,7 @@ DELETE FROM {FILE_TABLE} WHERE {DRIVE_ID_COLUMN} = @drive;
 DELETE FROM {FOLDER_TABLE} where {DRIVE_ID_COLUMN} = @drive;
 ";
 
-            await adoTemplate.Execute(nukeSqlBatch, (setParam) => setParam("drive", NpgsqlDbType.Varchar, drive));
+            await adoTemplate.Execute(nukeSqlBatch, (setParam) => setParam("drive", NpgsqlDbType.Integer, drive));
 
         }
 
@@ -403,7 +399,10 @@ RETURNING {DRIVE_ID_COLUMN}
 
             await Format(username, drive);
 
-            var sql = $@"DELETE FROM {DRIVE_TABLE} WHERE {DRIVE_ID_COLUMN} = @id";
+            var sql = $@"
+                DELETE FROM {ACCESS_TABLE} WHERE {DRIVE_ID_COLUMN} = @id;
+                DELETE FROM {DRIVE_TABLE} WHERE {DRIVE_ID_COLUMN} = @id;
+            ";
             await adoTemplate.Execute(sql, (setParam) => setParam("id", NpgsqlDbType.Integer, drive));
 
         }
@@ -649,7 +648,7 @@ WHERE {FILE_ID_COLUMN} = @fileId
 ";
 
             await adoTemplate.Execute(sql, (setParam) => {
-                setParam("filename", NpgsqlDbType.Bytea, name);
+                setParam("filename", NpgsqlDbType.Varchar, name);
                 setParam("fileId", NpgsqlDbType.Integer, file);
                 setParam("username", NpgsqlDbType.Varchar, username);
             });

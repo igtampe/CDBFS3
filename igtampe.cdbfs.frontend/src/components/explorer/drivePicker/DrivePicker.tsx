@@ -21,8 +21,18 @@ export default function DrivePicker(props: {
     const drivesApi = useApi(myAccess)
 
     useEffect(() => {
-        drivesApi.fetch();
+        drivesApi.fetch(refreshSelectedDrive);
     }, [user.user, flag]);
+
+    const refreshSelectedDrive = (vals?: AccessRecord[]) => {
+        if (!drive) return;
+        const record = vals?.filter(a => a.driveId === drive.id)
+        if (!record || record.length === 0) {
+            setRecord(undefined as any);
+        } else {
+            setRecord(record[0]);
+        }
+    }
 
     if (drivesApi.loading) {
         return <div style={{ width: "32px", margin: "0 auto", marginTop: "20px" }}>
@@ -35,22 +45,21 @@ export default function DrivePicker(props: {
     }
 
     return <List component="nav">
-        {
-            drivesApi.data?.map(a => <ListItemButton
-                key={`access${a.id}`}
-                selected={a.driveId == drive?.id}
-                onClick={() => {
-                    if (a.driveId !== drive?.id) { setRecord(a) }
-                    else {
-                        setRecord(undefined as any)
-                    }
-                }}
-            >
-                <ListItemIcon>
-                    <img src="/filetypes/drive.png" height={32} />
-                </ListItemIcon>
-                <ListItemText primary={a.drive?.name} />
-            </ListItemButton>)
+        {drivesApi.data?.map(a => <ListItemButton
+            key={`access${a.id}`}
+            selected={a.driveId == drive?.id}
+            onClick={() => {
+                if (a.driveId !== drive?.id) { setRecord(a) }
+                else {
+                    setRecord(undefined as any)
+                }
+            }}
+        >
+            <ListItemIcon>
+                <img src="/filetypes/drive.png" height={32} />
+            </ListItemIcon>
+            <ListItemText primary={a.drive?.name} />
+        </ListItemButton>)
         }
     </List>
 

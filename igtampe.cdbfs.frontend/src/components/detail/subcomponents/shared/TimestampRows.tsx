@@ -1,4 +1,6 @@
+import { Tooltip, Typography } from "@mui/material"
 import Editable from "../../../../model/Editable"
+import TimeAgo from 'react-timeago'
 
 export default function TimestampRows(props: {
     item?: Editable
@@ -9,7 +11,7 @@ export default function TimestampRows(props: {
     return <>
         <tr>
             <td>Created</td>
-            <td>{new Date(item.createTs + "Z").toLocaleString()}</td>
+            <td> <TimeAgo date={item.createTs + "Z"} title={new Date(item.createTs + "Z").toLocaleString()} /></td>
         </tr>
         <tr>
             <td></td>
@@ -18,7 +20,7 @@ export default function TimestampRows(props: {
         {item.updateTs && <>
             <tr>
                 <td style={{ paddingTop: "20px" }}>Updated</td>
-                <td style={{ paddingTop: "20px" }}>{new Date(item.updateTs + "Z").toLocaleString()}<br /></td>
+                <td style={{ paddingTop: "20px" }}><TimeAgo date={item.updateTs + "Z"} title={new Date(item.updateTs + "Z").toLocaleString()} /></td>
             </tr>
             <tr>
                 <td></td>

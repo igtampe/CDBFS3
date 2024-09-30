@@ -23,8 +23,10 @@ namespace Igtampe.CDBFS.Api.Controllers {
             try {
                 CdbfsFile file = await dao.GetFile(session?.Username, id) ?? throw new CdbfsFileNotFoundException();
                 byte[] data = await dao.GetFileData(session?.Username, id) ?? throw new CdbfsFileNotFoundException(); ;
+                
+                Response.Headers.Add("Content-Disposition", "inline; filename=" + AppendExtension(file));
 
-                return File(data, file.MimeType, AppendExtension(file));
+                return File(data, file.MimeType);
             }
             catch (CdbfsFileNotFoundException) {
                 return NotFound();

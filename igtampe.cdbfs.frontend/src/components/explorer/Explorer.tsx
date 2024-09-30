@@ -12,6 +12,7 @@ import FileTile from "./tiles/FileTile";
 import { EmptyFolder } from "../shared/EmptyFolder";
 import { useRefresh } from "../hooks/useRefresh";
 import { DIR_REFRESH_FLAG } from "../contexts/RefreshContext";
+import { Refresh } from "@mui/icons-material";
 
 export default function Explorer(props: {
     record?: AccessRecord,
@@ -62,9 +63,11 @@ function BreadcrumbDisplay(props: {
     navUp: (levels: number) => void
 }) {
 
+    const { refresh } = useRefresh(DIR_REFRESH_FLAG)
     const { breadCrumbs, navUp, record } = props
 
     return <div style={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center" }}>
+        <div style={{ width: "32px" }}><IconButton onClick={refresh} ><Refresh /></IconButton></div>
         <div style={{ width: "32px" }}><IconButton disabled={breadCrumbs.length === 0} onClick={() => navUp(1)} ><ArrowUpwardIcon /></IconButton></div>
         <hr style={{ height: "16px", margin: "0px 10px" }} />
         <div><Button size="small" onClick={() => navUp(breadCrumbs.length)}>{record?.drive?.name}</Button></div>
