@@ -1,4 +1,3 @@
-import { Card, CardActionArea, Typography } from "@mui/material";
 import CdbfsFolder from "../../../model/CdbfsFolder";
 import Tile from "./Tile";
 

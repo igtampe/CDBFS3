@@ -27,7 +27,7 @@ export default function Explorer(props: {
 
 }) {
 
-    const { setFile, navTo, navUp, breadCrumbs, file, folder, record } = props
+    const { setFile, navTo, navUp, breadCrumbs, folder, record } = props
     const dirApi = useApi(getDirectory);
     const { flag } = useRefresh(DIR_REFRESH_FLAG)
 

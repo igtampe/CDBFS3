@@ -1,7 +1,7 @@
-import { Button, Divider, LinearProgress, ListItemIcon, ListItemText, Menu, MenuItem, styled, Typography } from "@mui/material";
+import { Button, Divider, LinearProgress, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useRef, useState } from "react";
-import { AddBox, CreateNewFolder, DriveFolderUpload, UploadFile } from "@mui/icons-material";
+import { AddBox, CreateNewFolder/*, DriveFolderUpload*/, UploadFile } from "@mui/icons-material";
 import AccessRecord from "../../../model/AccessRecord";
 import CdbfsFolder from "../../../model/CdbfsFolder";
 import { NewDriveModal } from "./subcomponents/NewDriveModal";
@@ -41,10 +41,10 @@ export default function NewButton(props: {
         closeMenu();
     }
 
-    const handleFolderUploadClick = () => {
-        refreshDir()
-        closeMenu();
-    }
+    // const handleFolderUploadClick = () => {
+    //     refreshDir()
+    //     closeMenu();
+    // }
 
     const handleFileUploadClick = () => {
         fileInputRef?.current?.click();

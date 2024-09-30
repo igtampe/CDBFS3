@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Paper } from "@mui/material";
+import { Card } from "@mui/material";
 import Navbar from "./components/navbar/Navbar";
 import { useWindowDimensions } from "./components/hooks/useWindowDimensions";
 import NewButton from "./components/explorer/newButton/NewButton";

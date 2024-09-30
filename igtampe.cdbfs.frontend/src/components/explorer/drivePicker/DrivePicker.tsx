@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { myAccess } from "../../../api/Access"
 import useApi from "../../hooks/useApi"
 import { useUser } from "../../hooks/useUser";
-import { CircularProgress, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { CircularProgress, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import AccessRecord from "../../../model/AccessRecord";
 import CdbfsDrive from "../../../model/CdbfsDrive";
 import { DRIVE_REFRESH_FLAG } from "../../contexts/RefreshContext";

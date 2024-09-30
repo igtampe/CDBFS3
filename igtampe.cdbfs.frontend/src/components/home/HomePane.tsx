@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { Card, CardContent, Typography } from "@mui/material";
 
 const ChopoBarBackground = `linear-gradient(to right, 
     #57007F 0%, #57007F 16.67%, 
