@@ -10,6 +10,7 @@ import useApi from "../../hooks/useApi";
 import FolderRequest from "../../../model/requests/FolderRequest";
 import RenameModal from "../../shared/modals/RenameModal";
 import AreYouSureModal from "../../shared/modals/AreYouSureModal";
+import { useSnackbar } from "notistack";
 
 export default function FolderDetailPane(props: {
     record: AccessRecord
@@ -19,6 +20,8 @@ export default function FolderDetailPane(props: {
 }) {
 
     const { folder, record, navUp, setFolder } = props;
+
+    const { enqueueSnackbar } = useSnackbar();
 
     const [renameModalOpen, setRenameModalOpen] = useState(false)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -41,10 +44,12 @@ export default function FolderDetailPane(props: {
 
     const onRenameSuccess = (val: string) => {
         setRenameModalOpen(false)
+        enqueueSnackbar("Folder renamed!", { variant: "success" })
         setFolder({ ...folder, name: val } as CdbfsFolder)
     }
 
     const onDeleteSuccess = () => {
+        enqueueSnackbar("Folder deleted!", { variant: "success" })
         setRenameModalOpen(false)
         navUp();
     }

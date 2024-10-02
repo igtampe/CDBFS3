@@ -12,6 +12,7 @@ import { useRefresh } from "../../hooks/useRefresh";
 import { DIR_REFRESH_FLAG, DRIVE_REFRESH_FLAG } from "../../contexts/RefreshContext";
 import DriveRequest from "../../../model/requests/DriveRequest";
 import FormatModal from "./modals/FormatModal";
+import { useSnackbar } from "notistack";
 
 export default function DriveDetailPane(props: {
     record: AccessRecord
@@ -20,6 +21,8 @@ export default function DriveDetailPane(props: {
     const { record } = props;
     const { refresh: refreshDrives } = useRefresh(DRIVE_REFRESH_FLAG);
     const { refresh: refreshDir } = useRefresh(DIR_REFRESH_FLAG)
+
+    const { enqueueSnackbar } = useSnackbar();
 
     const renameApi = useApi(updateDrive);
     const formatApi = useApi(formatDrive)
@@ -45,17 +48,20 @@ export default function DriveDetailPane(props: {
     }
 
     const onFormatSuccess = () => {
+        enqueueSnackbar("Drive formatted!", { variant: "success" })
         setFormatModalOpen(false);
         refreshDrives();
         refreshDir();
     }
 
     const onDeleteSuccess = () => {
+        enqueueSnackbar("Drive deleted!", { variant: "success" })
         setFormatModalOpen(false);
         refreshDrives();
     }
 
     const onRenameSuccess = () => {
+        enqueueSnackbar("Drive renamed!", { variant: "success" })
         setRenameModalOpen(false)
         refreshDrives();
     }

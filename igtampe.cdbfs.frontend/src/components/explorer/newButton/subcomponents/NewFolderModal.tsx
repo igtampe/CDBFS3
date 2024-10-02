@@ -8,6 +8,7 @@ import CdbfsFolder from "../../../../model/CdbfsFolder";
 import CdbfsDrive from "../../../../model/CdbfsDrive";
 import { createFolder } from "../../../../api/Folder";
 import FolderRequest from "../../../../model/requests/FolderRequest";
+import { useSnackbar } from "notistack";
 
 export function NewFolderModal(props: {
     open: boolean,
@@ -18,6 +19,7 @@ export function NewFolderModal(props: {
 
     const { open, setOpen, drive, folder } = props
     const newFolderApi = useApi(createFolder);
+    const { enqueueSnackbar } = useSnackbar();
 
     const [name, setName] = useState("")
     const { refresh: refreshDrives } = useRefresh(DIR_REFRESH_FLAG)
@@ -36,6 +38,7 @@ export function NewFolderModal(props: {
 
     const onSuccess = () => {
         setOpen(false);
+        enqueueSnackbar("Folder created!", { variant: "success" })
         refreshDrives();
     }
 

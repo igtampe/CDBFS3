@@ -1,4 +1,4 @@
-export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL ?? "https://localhost:7256"
+export const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? "https://localhost:7256"
 export const API_PREFIX = `${BACKEND_URL}/api/`
 
 class ApiResponse {

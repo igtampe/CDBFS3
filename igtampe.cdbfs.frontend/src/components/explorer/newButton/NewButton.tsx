@@ -12,6 +12,7 @@ import useUpload from "../../hooks/useUpload";
 import { createFile } from "../../../api/FIle";
 import FileRequest from "../../../model/requests/FileRequest";
 import ApiAlert from "../../shared/ApiAlert";
+import { useSnackbar } from "notistack";
 
 export default function NewButton(props: {
     record: AccessRecord,
@@ -21,6 +22,8 @@ export default function NewButton(props: {
     const fileInputRef = useRef(null as any);
 
     const { record, folder } = props;
+
+    const { enqueueSnackbar } = useSnackbar();
 
     const [menuEl, setMenuEl] = useState(false as any);
     const [newDriveOpen, setNewDriveOpen] = useState(false)
@@ -55,7 +58,12 @@ export default function NewButton(props: {
     const handleFileSelect = (event: any) => {
         const file = event.target.files[0]; // Get the selected file
         if (file) {
-            createFileApi.fetch(refreshDir, undefined, {
+            createFileApi.fetch(() => {
+                enqueueSnackbar("File uploaded!", { variant: "success" })
+                refreshDir();
+            }, () => {
+                enqueueSnackbar("Could not upload file!", { variant: "error" })
+            }, {
                 drive: record?.drive?.id,
                 folder: folder?.id ?? -1
             } as FileRequest, file)
@@ -67,19 +75,17 @@ export default function NewButton(props: {
 
     return <>
 
-        {
-            createFileApi.loading
-                ? <>
-                    <div style={{ margin: "10px 0px" }}>Uploading...</div>
-                    <LinearProgress value={createFileApi.progress} variant={createFileApi.progress === 0 || createFileApi.progress === 100 ? "indeterminate" : "determinate"} />
-                </>
-                : <>
-                    <Button variant="contained" fullWidth startIcon={<AddCircleOutlineIcon />} onClick={handleNewClick} >
-                        New
-                    </Button>
-                    <ApiAlert result={createFileApi.error} />
-                </>
-
+        {createFileApi.loading
+            ? <>
+                <div style={{ margin: "10px 0px" }}>Uploading...</div>
+                <LinearProgress value={createFileApi.progress} variant={createFileApi.progress === 0 || createFileApi.progress === 100 ? "indeterminate" : "determinate"} />
+            </>
+            : <>
+                <Button variant="contained" fullWidth startIcon={<AddCircleOutlineIcon />} onClick={handleNewClick} >
+                    New
+                </Button>
+                <ApiAlert result={createFileApi.error} />
+            </>
         }
 
         <Menu anchorEl={menuEl} open={!!menuEl} onClose={closeMenu}>

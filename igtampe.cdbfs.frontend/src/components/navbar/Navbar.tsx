@@ -8,6 +8,7 @@ import RegisterRequest from "../../model/requests/auth/RegisterRequest";
 import LoginRequest from "../../model/requests/auth/LoginRequest";
 import ChangePassRequest from "../../model/requests/auth/ChangePassRequest";
 import { useTheme } from "@emotion/react";
+import { useSnackbar } from "notistack";
 
 export default function Navbar() {
     return <AppBar color={"default"} enableColorOnDark>
@@ -33,22 +34,21 @@ function UserButton() {
     const [authModalOpen, setAuthModalOpen] = useState(false);
     const [changePassModalOpen, setChangePassModalOpen] = useState(false)
     const [profileMenuEl, setProfileMenuEl] = useState(false as any);
+    const { enqueueSnackbar } = useSnackbar();
 
     const logoutApi = useApi(logout);
 
-    if (loading) return <>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div><CircularProgress size={25} /></div>
-            <div style={{ marginLeft: "20px" }}>Spinning up</div>
-        </div>
-    </>
+    if (loading) return <></>
 
     const handleProfileClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         setProfileMenuEl(e.currentTarget);
     };
 
     const handleLogout = () => {
-        logoutApi.fetch(refreshAuth);
+        logoutApi.fetch(() => {
+            enqueueSnackbar("Logged out!", { variant: "success" })
+            refreshAuth();
+        });
         handleCloseProfileMenu();
     }
 
@@ -99,6 +99,8 @@ function AuthModal(props: {
     const loginApi = useApi(login);
     const registerApi = useApi(register)
 
+    const { enqueueSnackbar } = useSnackbar();
+
     const [registerMode, setRegisterMode] = useState(false)
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
@@ -134,6 +136,7 @@ function AuthModal(props: {
     }
 
     const onLoginSuccess = () => {
+        enqueueSnackbar("Logged in!", { variant: "success" })
         refreshAuth();
         setOpen(false);
     }
@@ -191,6 +194,7 @@ function ChangePassModal(props: {
 
     const { open, setOpen } = props
     const { refreshAuth } = useUser();
+    const { enqueueSnackbar } = useSnackbar();
     const changePassApi = useApi(changePassword);
 
     const [password, setPassword] = useState("")
@@ -210,6 +214,7 @@ function ChangePassModal(props: {
 
     const onSuccess = () => {
         setOpen(false);
+        enqueueSnackbar("Password changed!", { variant: "success" })
         refreshAuth();
     }
 

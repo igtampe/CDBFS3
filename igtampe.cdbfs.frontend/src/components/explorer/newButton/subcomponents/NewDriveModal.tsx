@@ -6,6 +6,7 @@ import { createDrive } from "../../../../api/Drive";
 import DriveRequest from "../../../../model/requests/DriveRequest";
 import { DRIVE_REFRESH_FLAG } from "../../../contexts/RefreshContext";
 import { useRefresh } from "../../../hooks/useRefresh";
+import { useSnackbar } from "notistack";
 
 export function NewDriveModal(props: {
     open: boolean,
@@ -13,6 +14,7 @@ export function NewDriveModal(props: {
 }) {
 
     const { open, setOpen } = props
+    const { enqueueSnackbar } = useSnackbar();
     const newDriveApi = useApi(createDrive);
 
     const [name, setName] = useState("")
@@ -28,6 +30,7 @@ export function NewDriveModal(props: {
 
     const onSuccess = () => {
         setOpen(false);
+        enqueueSnackbar("Drive created!", { variant: "success" })
         refreshDrives();
     }
 

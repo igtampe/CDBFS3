@@ -5,8 +5,8 @@ export default function ThemeWrapper(props: { children: any }) {
   const theme = createTheme({
     palette: {
       mode: 'dark',
-      primary: { main: process.env.REACT_APP_THEME_PRIMARY_COLOR ?? '#FF6A00', },
-      secondary: { main: process.env.REACT_APP_THEME_SECONDARY_COLOR ?? '#7F006E', },
+      primary: { main: import.meta.env.VITE_THEME_PRIMARY_COLOR ?? '#FF6A00', },
+      secondary: { main: import.meta.env.VITE_THEME_SECONDARY_COLOR ?? '#7F006E', },
     },
   })
 

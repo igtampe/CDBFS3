@@ -12,12 +12,21 @@ import { useClipboard } from "./components/hooks/useClipboard";
 import DetailPane from "./components/detail/DetailPane";
 import AccessRecord from "./model/AccessRecord";
 import Explorer from "./components/explorer/Explorer";
+import useApi from "./components/hooks/useApi";
+import { getStatistics } from "./api/FIle";
+import CdbfsStatistics from "./model/CdbfsStatistics";
 
 export default function App() {
 
   const { maxComponentHeight } = useWindowDimensions();
   const { user } = useUser();
   const clipboard = useClipboard();
+
+  const [cachedStats, setCachedStats] = useState(undefined as CdbfsStatistics | undefined)
+
+  //The App will only take care of this one thing.  
+  const statisticsApi = useApi(getStatistics, true, setCachedStats)
+
 
   const [file, setFile] = useState(null as any as CdbfsFile)
   const [breadcrumbs, setBreadCrumbs] = useState([] as CdbfsFolder[])
@@ -29,6 +38,7 @@ export default function App() {
     setFile(undefined as any)
     setBreadCrumbs([])
     setAccessRecord(undefined as any)
+    statisticsApi.fetch(setCachedStats);
     clipboard.setClipboard(undefined as any)
   }
 
@@ -63,7 +73,9 @@ export default function App() {
       <Navbar />
       <div style={{ marginTop: "80px" }}>
         <div style={{ margin: "0 auto", width: "97%", height: maxComponentHeight, display: "flex" }} >
-          <div style={{ width: "300px", marginRight: "20px" }}>
+
+
+          {cachedStats && <div style={{ width: "300px", marginRight: "20px" }}>
             <Card style={{ height: "100%", display: "flex", flexDirection: "column" }}>
               {user && <><div style={{ padding: "20px" }}>
                 <NewButton folder={folder} record={accessRecord} />
@@ -73,10 +85,16 @@ export default function App() {
                 <DrivePicker drive={accessRecord?.drive} setRecord={setAccessRecord} />
               </div>
             </Card>
-          </div>
+          </div>}
+
+
           <div style={{ flex: "1" }}>
-            {accessRecord?.drive ? <Explorer record={accessRecord} setFile={setFile} navTo={navTo} navUp={navUp} breadCrumbs={breadcrumbs} file={file} folder={folder} /> : <HomePane />}
+            {accessRecord?.drive
+              ? <Explorer record={accessRecord} setFile={setFile} navTo={navTo} navUp={navUp} breadCrumbs={breadcrumbs} file={file} folder={folder} />
+              : <HomePane statistics={cachedStats} />}
           </div>
+
+
           {accessRecord?.drive && <div style={{ width: "300px", marginLeft: "20px" }}>
             <Card style={{ height: "100%" }}>
               <DetailPane record={accessRecord} file={file} folder={folder} navUp={() => { navUp(1) }} setFile={setFile} setFolder={(val: CdbfsFolder) => {
@@ -86,6 +104,8 @@ export default function App() {
               }} />
             </Card>
           </div>}
+
+
         </div>
       </div >
     </>

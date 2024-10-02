@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { myAccess } from "../../../api/Access"
 import useApi from "../../hooks/useApi"
 import { useUser } from "../../hooks/useUser";
-import { CircularProgress, List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import AccessRecord from "../../../model/AccessRecord";
 import CdbfsDrive from "../../../model/CdbfsDrive";
 import { DRIVE_REFRESH_FLAG } from "../../contexts/RefreshContext";
@@ -36,7 +36,7 @@ export default function DrivePicker(props: {
 
     if (drivesApi.loading) {
         return <div style={{ width: "32px", margin: "0 auto", marginTop: "20px" }}>
-            <CircularProgress size={32} />
+            <img src="/loading.gif" width={32} />
         </div>
     }
 

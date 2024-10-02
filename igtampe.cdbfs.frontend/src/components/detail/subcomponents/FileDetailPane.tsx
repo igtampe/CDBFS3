@@ -14,6 +14,7 @@ import { useRefresh } from "../../hooks/useRefresh";
 import { DIR_REFRESH_FLAG } from "../../contexts/RefreshContext";
 import AreYouSureModal from "../../shared/modals/AreYouSureModal";
 import { Button } from "@mui/material";
+import { useSnackbar } from "notistack";
 
 export default function FileDetailPane(props: {
     record: AccessRecord,
@@ -23,6 +24,7 @@ export default function FileDetailPane(props: {
 
     const { file, record, setFile } = props;
 
+    const { enqueueSnackbar } = useSnackbar();
     const { refresh } = useRefresh(DIR_REFRESH_FLAG)
 
     const [renameModalOpen, setRenameModalOpen] = useState(false)
@@ -45,12 +47,14 @@ export default function FileDetailPane(props: {
     }
 
     const onRenameSuccess = (val: string) => {
+        enqueueSnackbar("File renamed!", { variant: "success" })
         setRenameModalOpen(false)
         setFile({ ...file, name: val } as CdbfsFile)
         refresh();
     }
 
     const onDeleteSuccess = () => {
+        enqueueSnackbar("File deleted!", { variant: "success" })
         setDeleteModalOpen(false)
         setFile(undefined as any)
         refresh();

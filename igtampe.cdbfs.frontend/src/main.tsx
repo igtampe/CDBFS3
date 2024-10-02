@@ -6,6 +6,7 @@ import DimensionsProvider from './components/contexts/DimensionsContext.tsx'
 import { AuthProvider } from './components/contexts/AuthContext.tsx'
 import ThemeWrapper from './ThemeWrapper.tsx'
 import { RefreshProvider } from './components/contexts/RefreshContext.tsx'
+import { SnackbarProvider } from 'notistack'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -14,7 +15,9 @@ createRoot(document.getElementById('root')!).render(
         <DimensionsProvider>
           <RefreshProvider>
             <ThemeWrapper>
-              <App />
+              <SnackbarProvider maxSnack={4} anchorOrigin={{ vertical: 'bottom', horizontal: 'right', }} >
+                <App />
+              </SnackbarProvider>
             </ThemeWrapper>
           </RefreshProvider>
         </DimensionsProvider>
