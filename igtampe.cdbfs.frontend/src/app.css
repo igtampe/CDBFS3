@@ -1,0 +1,58 @@
+.drivePicker-enter {
+    width: 0px;
+    margin-right: 0px
+}
+
+.drivePicker-enter-active {
+    width: 300px;
+    margin-right: 20px;
+    transition: width 250ms, margin-right 250ms;
+}
+
+.drivePicker-enter-done {
+    width: 300px;
+    margin-right: 20px;
+}
+
+
+.drivePicker-exit {
+    width: 300px;
+    margin-right: 20px;
+}
+
+.drivePicker-exit-active {
+    width: 0px;
+    margin-right: 0px;
+    transition: width 500ms, margin-right 500ms;
+}
+
+
+
+
+.detailsPane-enter {
+    width: 0px;
+    margin-left: 0px
+}
+
+.detailsPane-enter-active {
+    width: 300px;
+    margin-left: 20px;
+    transition: width 250ms, margin-left 250ms;
+}
+
+.detailsPane-enter-done {
+    width: 300px;
+    margin-left: 20px;
+}
+
+
+.detailsPane-exit {
+    width: 300px;
+    margin-left: 20px;
+}
+
+.detailsPane-exit-active {
+    width: 0px;
+    margin-left: 0px;
+    transition: width 500ms, margin-left 500ms;
+}

@@ -15,6 +15,8 @@ import Explorer from "./components/explorer/Explorer";
 import useApi from "./components/hooks/useApi";
 import { getStatistics } from "./api/FIle";
 import CdbfsStatistics from "./model/CdbfsStatistics";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
+import "./app.css"
 
 export default function App() {
 
@@ -74,19 +76,20 @@ export default function App() {
       <div style={{ marginTop: "80px" }}>
         <div style={{ margin: "0 auto", width: "97%", height: maxComponentHeight, display: "flex" }} >
 
-
-          {cachedStats && <div style={{ width: "300px", marginRight: "20px" }}>
-            <Card style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-              {user && <><div style={{ padding: "20px" }}>
-                <NewButton folder={folder} record={accessRecord} />
-              </div>
-                <hr style={{ width: "90%", borderColor: "#7777", margin: "0 auto" }} /></>}
-              <div style={{ flex: '1', padding: '20px', overflowY: "auto" }}>
-                <DrivePicker drive={accessRecord?.drive} setRecord={setAccessRecord} />
-              </div>
-            </Card>
-          </div>}
-
+          <TransitionGroup component={null}>
+            {cachedStats && <CSSTransition timeout={500} classNames="drivePicker">
+              <div style={{}}>
+                <Card style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                  {user && <><div style={{ padding: "20px" }}>
+                    <NewButton folder={folder} record={accessRecord} />
+                  </div>
+                    <hr style={{ width: "90%", borderColor: "#7777", margin: "0 auto" }} /></>}
+                  <div style={{ flex: '1', padding: '20px', overflowY: "auto" }}>
+                    <DrivePicker drive={accessRecord?.drive} setRecord={setAccessRecord} />
+                  </div>
+                </Card>
+              </div></CSSTransition>}
+          </TransitionGroup>
 
           <div style={{ flex: "1" }}>
             {accessRecord?.drive
@@ -94,16 +97,19 @@ export default function App() {
               : <HomePane statistics={cachedStats} />}
           </div>
 
-
-          {accessRecord?.drive && <div style={{ width: "300px", marginLeft: "20px" }}>
-            <Card style={{ height: "100%" }}>
-              <DetailPane record={accessRecord} file={file} folder={folder} navUp={() => { navUp(1) }} setFile={setFile} setFolder={(val: CdbfsFolder) => {
-                breadcrumbs.pop();
-                breadcrumbs.push(val);
-                setBreadCrumbs([...breadcrumbs])
-              }} />
-            </Card>
-          </div>}
+          <TransitionGroup component={null}>
+            {accessRecord?.drive && <CSSTransition timeout={500} classNames="detailsPane">
+              <div>
+                <Card style={{ height: "100%" }}>
+                  <DetailPane record={accessRecord} file={file} folder={folder} navUp={() => { navUp(1) }} setFile={setFile} setFolder={(val: CdbfsFolder) => {
+                    breadcrumbs.pop();
+                    breadcrumbs.push(val);
+                    setBreadCrumbs([...breadcrumbs])
+                  }} />
+                </Card>
+              </div>
+            </CSSTransition>}
+          </TransitionGroup>
 
 
         </div>
