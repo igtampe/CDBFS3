@@ -25,7 +25,7 @@
         Task UpdateFile(string username, int file, byte[] data, string mimeType);
         Task RenameFile(string username, int file, string name);
         Task MoveFile(string username, int file, int destinationDrive, int? destinationFolder);
-        Task<int> CopyFile(string username, int file, int destinationDrive, int? destinationFolder);
+        Task<int?> CopyFile(string username, int file, int destinationDrive, int? destinationFolder);
         Task DeleteFile(string username, int file);
     }
 }

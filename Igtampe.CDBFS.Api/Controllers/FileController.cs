@@ -40,6 +40,11 @@ namespace Igtampe.CDBFS.Api.Controllers {
             return file==null ? NotFound() : Ok(file);
         }
 
+        [HttpGet("stats")]
+        public async Task<IActionResult> GetStatistics() { 
+            return Ok(await dao.GetStatistics());
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateFile([FromForm] FileRequest request, [FromForm] IFormFile file) {
             var session = GetSession(Request, Response);

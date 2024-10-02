@@ -223,6 +223,18 @@ where {FILE_ID_COLUMN} = @file AND --This is the drive we're looking for
 
         }
 
+        public async Task<CdbfsStatistics?> GetStatistics() {
+            var INSTANCE_SIZE = "INSTANCE_SIZE";
+            var FILE_COUNT = "FILE_COUNT";
+            var sql = $@"select sum(length({FILE_DATA_COLUMN})) as {INSTANCE_SIZE}, count(*) as {FILE_COUNT} from {FILE_TABLE}";
+            return await adoTemplate.QuerySingle(sql, (_) => { }, (reader) => {
+                return new CdbfsStatistics() {
+                    TotalFileCount = reader.GetInt64(reader.GetOrdinal(FILE_COUNT)),
+                    TotalSize = reader.IsDBNull(reader.GetOrdinal(INSTANCE_SIZE)) ? null : reader.GetInt64(reader.GetOrdinal(INSTANCE_SIZE))
+                };
+            });
+        }
+
         #endregion
 
         #region FOLDER
@@ -674,25 +686,34 @@ WHERE {FILE_ID_COLUMN} = @fileId
 
         }
 
-        public async Task<int> CopyFile(string username, int file, int destinationDrive, int? destinationFolder) {
+        public async Task<int?> CopyFile(string username, int file, int destinationDrive, int? destinationFolder) {
             //Load the file then write it somewhere else
             await VerifyFolderInDrive(destinationDrive, destinationFolder);
             await VerifyCanEditFile(username, file);
             await VerifyCanEditDrive(username, destinationDrive);
 
-            var metadataSql = $@"SELECT * FROM {FILE_VIEW} WHERE {FILE_ID_COLUMN} = @id";
+            var sql = $@"
+insert into {FILE_TABLE} ({string.Join(",",DRIVE_ID_COLUMN,FOLDER_ID_COLUMN,FILE_NAME_COLUMN,FILE_TYPE_COLUMN,FILE_DATA_COLUMN,CRE_TS,CRE_USR_ID)})
+select
+	@drive, --destination Drive
+	@folder, --destination folder
+	{FILE_NAME_COLUMN},
+	{FILE_TYPE_COLUMN},
+	{FILE_DATA_COLUMN},
+	CURRENT_TIMESTAMP, --cre_ts
+	@username --cre_usr_id
+from {FILE_TABLE}
+where {FILE_ID_COLUMN}  = @id
+returning {FILE_ID_COLUMN}
+";
+
+            return await adoTemplate.QuerySingle(sql, (setParam) => {
+                setParam("drive", NpgsqlDbType.Integer, destinationDrive);
+                setParam("folder", NpgsqlDbType.Integer, destinationFolder);
+                setParam("username", NpgsqlDbType.Varchar, username);
+                setParam("id", NpgsqlDbType.Integer, file);
+            }, (reader) => reader.GetInt32(reader.GetOrdinal(FILE_ID_COLUMN)));
             
-
-            //Get the file 
-            CdbfsFile? fileMetaData = await adoTemplate.QuerySingle(metadataSql, 
-                (setParam) => setParam("id", NpgsqlDbType.Integer, file), fileRm);
-
-            byte[]? fileData = await GetFileData(username, file);
-
-
-            return fileMetaData == null
-                ? throw new CdbfsFileNotFoundException()
-                : await CreateFile(username, destinationDrive, destinationFolder, fileMetaData.Name, fileData, fileMetaData.MimeType);
         }
 
         public async Task DeleteFile(string username, int file) {
