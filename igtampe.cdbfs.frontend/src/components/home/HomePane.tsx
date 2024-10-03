@@ -1,4 +1,4 @@
-import { Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent } from "@mui/material";
 import CdbfsStatistics from "../../model/CdbfsStatistics";
 import { useEffect, useState } from "react";
 import { BACKEND_URL } from "../../api/Common";
