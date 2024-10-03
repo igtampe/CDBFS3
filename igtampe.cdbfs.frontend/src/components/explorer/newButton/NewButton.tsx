@@ -1,4 +1,4 @@
-import { Button, Divider, LinearProgress, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import { Button, Divider, IconButton, LinearProgress, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { useRef, useState } from "react";
 import { AddBox, CreateNewFolder/*, DriveFolderUpload*/, UploadFile } from "@mui/icons-material";
@@ -17,11 +17,12 @@ import { useSnackbar } from "notistack";
 export default function NewButton(props: {
     record: AccessRecord,
     folder?: CdbfsFolder,
+    mini?: boolean
 }) {
 
     const fileInputRef = useRef(null as any);
 
-    const { record, folder } = props;
+    const { record, folder, mini } = props;
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -80,12 +81,16 @@ export default function NewButton(props: {
                 <div style={{ margin: "10px 0px" }}>Uploading...</div>
                 <LinearProgress value={createFileApi.progress} variant={createFileApi.progress === 0 || createFileApi.progress === 100 ? "indeterminate" : "determinate"} />
             </>
-            : <>
-                <Button variant="contained" fullWidth startIcon={<AddCircleOutlineIcon />} onClick={handleNewClick} >
-                    New
-                </Button>
-                <ApiAlert result={createFileApi.error} />
-            </>
+            : mini
+                ? <Tooltip title="Add an item">
+                    <IconButton onClick={handleNewClick}><AddCircleOutlineIcon /></IconButton>
+                </Tooltip>
+                : <>
+                    <Button variant="contained" fullWidth startIcon={<AddCircleOutlineIcon />} onClick={handleNewClick} >
+                        New
+                    </Button>
+                    <ApiAlert result={createFileApi.error} />
+                </>
         }
 
         <Menu anchorEl={menuEl} open={!!menuEl} onClose={closeMenu}>

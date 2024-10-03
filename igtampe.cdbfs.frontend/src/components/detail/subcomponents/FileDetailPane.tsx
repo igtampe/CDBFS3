@@ -15,6 +15,8 @@ import { DIR_REFRESH_FLAG } from "../../contexts/RefreshContext";
 import AreYouSureModal from "../../shared/modals/AreYouSureModal";
 import { Button } from "@mui/material";
 import { useSnackbar } from "notistack";
+import { API_PREFIX } from "../../../api/Common";
+import { useWindowDimensions } from "../../hooks/useWindowDimensions";
 
 export default function FileDetailPane(props: {
     record: AccessRecord,
@@ -26,6 +28,7 @@ export default function FileDetailPane(props: {
 
     const { enqueueSnackbar } = useSnackbar();
     const { refresh } = useRefresh(DIR_REFRESH_FLAG)
+    const { vertical } = useWindowDimensions();
 
     const [renameModalOpen, setRenameModalOpen] = useState(false)
     const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -60,6 +63,10 @@ export default function FileDetailPane(props: {
         refresh();
     }
 
+    const download = () => {
+        window.open(API_PREFIX + `files/${file.id}/data `, "_blank")
+    }
+
 
     return <div style={{ height: "100%", display: "flex", overflowY: "auto", flexDirection: "column", padding: "20px" }}>
 
@@ -75,6 +82,8 @@ export default function FileDetailPane(props: {
                 </tr>
             </tbody>
         </table>
+
+        {vertical && <div style={{ marginTop: "10px" }}><Button fullWidth onClick={download}>Download File</Button></div>}
 
         {record.access > 1 && <>
             <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>

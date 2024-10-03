@@ -34,7 +34,7 @@ export default function HomePane(props: {
             </div>
         </div>
         <CardContent style={{ flex: "1", overflowY: "auto" }}>
-            <div style={{ padding: "0px 20px", textAlign: "center", justifyContent: "center", alignContent: "center", display: "flex", alignItems: "center", height: "100%", flexDirection: "column" }}>
+            <div style={{ padding: "40px 20px", textAlign: "center", justifyContent: "center", alignContent: "center", display: "flex", alignItems: "center", height: "100%", flexDirection: "column" }}>
                 {!statistics
                     ? <>
                         <img src="/loading.gif" width={64} />

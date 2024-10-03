@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { myAccess } from "../../../api/Access"
 import useApi from "../../hooks/useApi"
 import { useUser } from "../../hooks/useUser";
-import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { FormControl, InputLabel, List, ListItemButton, ListItemIcon, ListItemText, MenuItem, Select } from "@mui/material";
 import AccessRecord from "../../../model/AccessRecord";
 import CdbfsDrive from "../../../model/CdbfsDrive";
 import { DRIVE_REFRESH_FLAG } from "../../contexts/RefreshContext";
@@ -10,10 +10,11 @@ import { useRefresh } from "../../hooks/useRefresh";
 
 export default function DrivePicker(props: {
     drive?: CdbfsDrive,
-    setRecord: (val: AccessRecord) => void
+    setRecord: (val: AccessRecord) => void,
+    select?: boolean
 }) {
 
-    const { drive, setRecord } = props
+    const { drive, setRecord, select } = props
 
     const user = useUser();
     const { flag } = useRefresh(DRIVE_REFRESH_FLAG)
@@ -44,15 +45,26 @@ export default function DrivePicker(props: {
         return <div style={{ textAlign: "center", marginTop: "20px" }}>No Drives!</div>
     }
 
+    if (select) return <FormControl fullWidth>
+        <InputLabel id="driveSelectLabel">Select a Drive</InputLabel>
+        <Select fullWidth
+            labelId="driveSelectLabel"
+            value={drive?.id}
+            label="Drive"
+            onChange={(e) => { setRecord(drivesApi.data.filter(a => a.driveId === e.target.value)[0]) }}
+        >
+            {drivesApi.data?.map(a => <MenuItem key={`access${a.id}`} value={a.driveId}>{a.drive?.name}</MenuItem>)}
+
+        </Select>
+    </FormControl>
+
     return <List component="nav">
         {drivesApi.data?.map(a => <ListItemButton
             key={`access${a.id}`}
             selected={a.driveId == drive?.id}
             onClick={() => {
                 if (a.driveId !== drive?.id) { setRecord(a) }
-                else {
-                    setRecord(undefined as any)
-                }
+                else { setRecord(undefined as any) }
             }}
         >
             <ListItemIcon>

@@ -6,10 +6,10 @@ import CdbfsFolder from "../../model/CdbfsFolder";
 import useApi from "../hooks/useApi";
 import { Button, Card, IconButton, Paper } from "@mui/material";
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import { CenterLoading } from "../shared/CenterLoading";
+import CenterLoading from "../shared/CenterLoading";
 import FolderTile from "./tiles/FolderTile";
 import FileTile from "./tiles/FileTile";
-import { EmptyFolder } from "../shared/EmptyFolder";
+import EmptyFolder from "../shared/EmptyFolder";
 import { useRefresh } from "../hooks/useRefresh";
 import { DIR_REFRESH_FLAG } from "../contexts/RefreshContext";
 import { Refresh } from "@mui/icons-material";
@@ -66,7 +66,7 @@ function BreadcrumbDisplay(props: {
     const { refresh } = useRefresh(DIR_REFRESH_FLAG)
     const { breadCrumbs, navUp, record } = props
 
-    return <div style={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center" }}>
+    return <div style={{ display: "flex", alignContent: "center", justifyContent: "center", alignItems: "center", overflowX: "auto" }}>
         <div style={{ width: "32px" }}><IconButton onClick={refresh} ><Refresh /></IconButton></div>
         <div style={{ width: "32px" }}><IconButton disabled={breadCrumbs.length === 0} onClick={() => navUp(1)} ><ArrowUpwardIcon /></IconButton></div>
         <hr style={{ height: "16px", margin: "0px 10px" }} />
